@@ -1,0 +1,16 @@
+On veut pouvoir comparer les contenus de 2 répertoires. Ils ne contiennent pas forcément les mêmes fichiers ni répertoires et on veut donc connaître leurs différences.
+
+
+Pour cela on veut utiliser les empreintes md5 (https://fr.wikipedia.org/wiki/MD5) de chaque fichier et de chaque répertoire, via la commande md5sum (https://doc.ubuntu-fr.org/md5sum).
+
+
+L'algorithme (grossier) est donc de calculer, pour chaque répertoire, l'empreinte md5 de chaque fichier XXX contenu et de la stocker dans un fichier, sous la forme "empreinte XXX" (1 ligne par fichier). Le md5 d'un répertoire est le md5 du fichier contenant les empreintes des fichiers contenus.
+
+L'application doit fournir en sortie :
+
+    une information si les 2 arborescentes sont identiques ;
+    le nombre de fichiers différents ;
+    les fichiers et répertoires différents pour chaque arborescence, sous forme arborescente texte (à la manière de la commande pstree) ;
+    un fichier texte qui contient la liste de tous les fichiers différents, avec leurs chemins complet, pour les 2 arborescences.
+
+Vous apportez des ajouts aux points précédents (HTML, version, test date et heure...) mais ils ne seront notés que si les points obligatoires sont remplis.

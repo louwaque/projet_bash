@@ -1,0 +1,3 @@
+Le binôme constituant chaque équipe est à envoyer à M. Raffin avant le 15 octobre 2016 à 23h. Il faut le faire par email, en mettant en copie l'autre étudiant du binôme. Les étudiants sans binôme au 16 octobre seront affectés de manière unilatérale par l'enseignant.
+
+A rendre avant le 06 janvier 2017 à 23h FR. Tous les fichiers du projet (utiles, pas de .bak, ou d'essais) doivent être mis dans une archive à l'extension .tar.gz - cf outils tar et gzip, au nom du binôme. Par exemple : "DupontDurand.tar.gz". Il faut rédiger (dans un fichier texte simple) les actions à effectuer pour lancer votre projet, éventuellement les erreurs possibles. Cette archive est à envoyer à M. Raffin avant la date limite.
