@@ -14,3 +14,5 @@ L'application doit fournir en sortie :
     un fichier texte qui contient la liste de tous les fichiers différents, avec leurs chemins complet, pour les 2 arborescences.
 
 Vous apportez des ajouts aux points précédents (HTML, version, test date et heure...) mais ils ne seront notés que si les points obligatoires sont remplis.
+
+hello
