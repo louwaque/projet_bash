@@ -41,10 +41,12 @@ function make_hash {
   for path in "$1"/*; do
     if [ -d "$path" ]; then
       make_hash "$path"
-    else
-      if [ -f "$path" ]; then
-        md5sum "$(realpath --relative-to="$PWD" "$path")" >> "$HASH_FILE"
-      fi
+    fi
+    if [ -f "$path" ]; then
+      md5sum "$(realpath --relative-to="$PWD" "$path")" >> "$HASH_FILE"
+    fi
+    if [ "$(basename "$path")" == "*" ]; then
+      echo "" | md5sum | sed "s|-|$path|g" >> "$HASH_FILE"
     fi
   done
 }
