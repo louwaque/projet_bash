@@ -1,13 +1,10 @@
 #!/bin/bash
 
 HASH_FILE=/tmp/bighash
-MAIN_DIR="$PWD"
-
 FIRST_DIR="dossier_1"
 SECOND_DIR="dossier_2"
 
 export HASH_FILE
-export MAIN_DIR
 export FIRST_DIR
 export SECOND_DIR
 
@@ -53,31 +50,22 @@ function make_hash {
 }
 
 function compare_hash {
-  res=$(cat "$HASH_FILE" | sed -e "s/$FIRST_DIR//g" -e "s/$SECOND_DIR//g" | sort | uniq -u)
+  different_files="$(cat "$HASH_FILE" | sed -e "s/$FIRST_DIR//g" -e "s/$SECOND_DIR//g" | sort | uniq -u)"
 
-  #afficher fichier existe dans les deux dossier mais différents
-  autre_res=$(echo "$res" | cut -d ' ' -f3 | sort | uniq -d)
+  modified_files="$(echo "$different_files" | cut -d ' ' -f 3 | sort | uniq -d)"
 
-  truc=$(echo "$res" | sed 's/.*\ \(.*\)/\1/g' | uniq -u)
+  new_files="$(echo "$different_files" | cut -d ' ' -f 3 | sort | uniq -u)"
 
-  echo "existe dans deux"
-  echo "$autre_res"
-  echo "existe un seul"
+  echo "modified_files:"
+  echo "$modified_files"
 
+  echo "new_files:"
   while read line; do
-    cat "$HASH_FILE" | grep "$line" | cut -d ' ' -f3
-  done < <(echo "$truc")
-
-  # while read ligne; do
-  #   hash="$(echo "$ligne" | cut -d ' ' -f1)"
-  #   filename="$(echo "$ligne" | cut -d ' ' -f3)"
-  #   cat "$HASH_FILE" | grep "$hash" | sed "s/\(.*\)\ \(.*\)/\2/g" | sort
-  # done < <(echo "$res")
-  # echo "$res"
+    cat "$HASH_FILE" | grep "$line" | cut -d ' ' -f 3
+  done < <(echo "$new_files")
 }
 
 make_hash "$FIRST_DIR"
 make_hash "$SECOND_DIR"
-
 
 compare_hash
