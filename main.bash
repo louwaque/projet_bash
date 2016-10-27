@@ -10,32 +10,6 @@ export SECOND_DIR
 
 rm "$HASH_FILE"
 
-# function make_hash {
-#   for path in "$2"/*; do
-#     if [ -d "$path" ]; then
-#       #cd "$path" || return
-#       make_hash "$1" "$PWD/$path"
-#       #cd ..
-#     else
-#       if [ -f "$path" ]; then
-#         md5sum "$(realpath --relative-to="$1" "$path")" >> "$HASH_FILE"
-#       fi
-#     fi
-#   done
-# }
-#
-# function compare_hash {
-#   cat $HASH_FILE | sort | uniq -u
-# }
-
-# cd dossier_1 || return
-# make_hash "$(realpath ../dossier_1)" ./
-# cd ..
-#
-# cd dossier_2 || return
-# make_hash "$(realpath ../dossier_2)" ./
-# cd ..
-
 function make_hash {
   local path
   for path in "$1"/*; do
