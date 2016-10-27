@@ -8,7 +8,9 @@ export HASH_FILE
 export FIRST_DIR
 export SECOND_DIR
 
-rm "$HASH_FILE"
+if [ -f "$HASH_FILE" ]; then
+  rm "$HASH_FILE"
+fi
 
 function make_hash {
   local path
