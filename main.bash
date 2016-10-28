@@ -1,10 +1,18 @@
 #!/bin/bash
 
-HASH_FILE=/tmp/bighash
+HASH_FILE="/tmp/bighash"
+MAIN_DIR="$PWD"
 FIRST_DIR="dossier_1"
 SECOND_DIR="dossier_2"
 
+if [[ -d "$1" && -d "$2" && "$(dirname "$1")" = "$(dirname "$2")" ]]; then
+  MAIN_DIR="$(dirname "$(realpath "$1")")"
+  FIRST_DIR="$(basename "$1")"
+  SECOND_DIR="$(basename "$2")"
+fi
+
 export HASH_FILE
+export MAIN_DIR
 export FIRST_DIR
 export SECOND_DIR
 
@@ -23,14 +31,14 @@ function make_hash {
       fi
     else
       if [ -f "$path" ]; then
-        md5sum "$(realpath --relative-to="$PWD" "$path")" >> "$HASH_FILE"
+        md5sum "$(realpath "$path")" >> "$HASH_FILE"
       fi
     fi
   done
 }
 
 function compare_hash {
-  different_files="$(cat "$HASH_FILE" | sed -e "s/$FIRST_DIR//g" -e "s/$SECOND_DIR//g" | sort | uniq -u)"
+  different_files="$(cat "$HASH_FILE" | sed -e "s|$MAIN_DIR/$FIRST_DIR||g" -e "s|$MAIN_DIR/$SECOND_DIR||g" | sort | uniq -u)"
 
   modified_files="$(echo "$different_files" | cut -d ' ' -f 3 | sort | uniq -d)"
 
@@ -45,7 +53,7 @@ function compare_hash {
   done < <(echo "$new_files")
 }
 
-make_hash "$FIRST_DIR"
-make_hash "$SECOND_DIR"
+make_hash "$MAIN_DIR/$FIRST_DIR"
+make_hash "$MAIN_DIR/$SECOND_DIR"
 
 compare_hash
