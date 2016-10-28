@@ -16,13 +16,15 @@ function make_hash {
   local path
   for path in "$1"/*; do
     if [ -d "$path" ]; then
-      make_hash "$path"
-    fi
-    if [ -f "$path" ]; then
-      md5sum "$(realpath --relative-to="$PWD" "$path")" >> "$HASH_FILE"
-    fi
-    if [ "$(basename "$path")" == "*" ]; then
-      echo "" | md5sum | sed "s|-|$path|g" >> "$HASH_FILE"
+      if [ "$(ls -A "$path")" ]; then
+        make_hash "$path"
+      else
+        echo "" | md5sum | sed "s|-|$path/|g" >> "$HASH_FILE"
+      fi
+    else
+      if [ -f "$path" ]; then
+        md5sum "$(realpath --relative-to="$PWD" "$path")" >> "$HASH_FILE"
+      fi
     fi
   done
 }
@@ -39,7 +41,7 @@ function compare_hash {
 
   echo "new_files:"
   while read line; do
-    cat "$HASH_FILE" | grep "$line" | cut -d ' ' -f 3
+    cat "$HASH_FILE" | grep "$line$" | cut -d ' ' -f 3
   done < <(echo "$new_files")
 }
 
