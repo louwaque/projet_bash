@@ -5,6 +5,7 @@ MAIN_DIR="$PWD"
 FIRST_DIR="dossier_1"
 SECOND_DIR="dossier_2"
 
+# c pa b1 mm dosier  para
 if [[ -d "$1" && -d "$2" && "$(dirname "$1")" = "$(dirname "$2")" ]]; then
   MAIN_DIR="$(dirname "$(realpath "$1")")"
   FIRST_DIR="$(basename "$1")"
@@ -48,9 +49,13 @@ function compare_hash {
   echo "$modified_files"
 
   echo "new_files:"
-  while read line; do
-    cat "$HASH_FILE" | grep "^[[:alnum:]]\{32\}[[:space:]]\{2\}$MAIN_DIR/\($FIRST_DIR\|$SECOND_DIR\)$line$" | cut -d ' ' -f 3 | sed "s|$MAIN_DIR||g"
-  done < <(echo "$new_files")
+<<<<<<< HEAD
+  if [[ ! -z "$new_files" ]]; then
+    while read line; do
+      cat "$HASH_FILE" | grep "^[[:alnum:]]\{32\}[[:space:]]\{2\}$MAIN_DIR/\($FIRST_DIR\|$SECOND_DIR\)$line$" | cut -d ' ' -f 3 | sed "s|$MAIN_DIR||g"
+    done < <(echo "$new_files")
+  fi
+>>>>>>> deb9c3469e8dbba901f51b51f95a36aa1f849556
 }
 
 make_hash "$MAIN_DIR/$FIRST_DIR"

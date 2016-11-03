@@ -8,11 +8,9 @@ L'algorithme (grossier) est donc de calculer, pour chaque répertoire, l'emprein
 
 L'application doit fournir en sortie :
 
-    une information si les 2 arborescentes sont identiques ;
-    le nombre de fichiers différents ;
+    une information si les 2 arborescentes sont identiques ; alex
+    le nombre de fichiers différents ; alex
     les fichiers et répertoires différents pour chaque arborescence, sous forme arborescente texte (à la manière de la commande pstree) ;
-    un fichier texte qui contient la liste de tous les fichiers différents, avec leurs chemins complet, pour les 2 arborescences.
+    un fichier texte qui contient la liste de tous les fichiers différents, avec leurs chemins complet, pour les 2 arborescences. alex
 
 Vous apportez des ajouts aux points précédents (HTML, version, test date et heure...) mais ils ne seront notés que si les points obligatoires sont remplis.
-
-hello
