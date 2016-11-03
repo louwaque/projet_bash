@@ -67,7 +67,13 @@ function compare_hash {
 }
 
 function print_tree {
-  echo "un arbre"
+  local path
+  for path in "$1"/*; do
+    echo "! $path"
+    if [ -d "$path" ]; then
+      print_tree "$path"
+    fi
+  done
 }
 
 function print_result {
@@ -76,8 +82,9 @@ function print_result {
   echo "les dossiers sont identiques"
 }
 
-make_hash "$MAIN_FIRST_DIR/$FIRST_DIR"
-make_hash "$MAIN_SECOND_DIR/$SECOND_DIR"
+#make_hash "$MAIN_FIRST_DIR/$FIRST_DIR"
+#make_hash "$MAIN_SECOND_DIR/$SECOND_DIR"
 
-compare_hash
-print_result
+#compare_hash
+#print_result
+print_tree "$MAIN_FIRST_DIR/$FIRST_DIR"
