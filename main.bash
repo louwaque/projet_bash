@@ -49,7 +49,7 @@ function compare_hash {
 
   echo "new_files:"
   while read line; do
-    cat "$HASH_FILE" | grep "$line$" | cut -d ' ' -f 3
+    cat "$HASH_FILE" | grep "^[[:alnum:]]\{32\}[[:space:]]\{2\}$MAIN_DIR/\($FIRST_DIR\|$SECOND_DIR\)$line$" | cut -d ' ' -f 3 | sed "s|$MAIN_DIR||g"
   done < <(echo "$new_files")
 }
 
