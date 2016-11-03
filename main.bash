@@ -49,13 +49,11 @@ function compare_hash {
   echo "$modified_files"
 
   echo "new_files:"
-<<<<<<< HEAD
   if [[ ! -z "$new_files" ]]; then
     while read line; do
       cat "$HASH_FILE" | grep "^[[:alnum:]]\{32\}[[:space:]]\{2\}$MAIN_DIR/\($FIRST_DIR\|$SECOND_DIR\)$line$" | cut -d ' ' -f 3 | sed "s|$MAIN_DIR||g"
     done < <(echo "$new_files")
   fi
->>>>>>> deb9c3469e8dbba901f51b51f95a36aa1f849556
 }
 
 make_hash "$MAIN_DIR/$FIRST_DIR"
