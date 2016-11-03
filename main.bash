@@ -58,7 +58,14 @@ function compare_hash {
   fi
 }
 
+function print_result {
+  #alex voila là où tu vas faire tes devoirs :)
+  #comme je peux pas laisser la fonction qu'avec des com j'affiche un truc
+  echo "les dossiers sont identiques"
+}
+
 make_hash "$MAIN_FIRST_DIR/$FIRST_DIR"
 make_hash "$MAIN_SECOND_DIR/$SECOND_DIR"
 
 compare_hash
+print_result
