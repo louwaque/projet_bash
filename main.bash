@@ -67,12 +67,24 @@ function compare_hash {
 }
 
 function print_tree {
-  local path
+  local path sub_file sub_dir nb_files i
+  sub_file="├── "
+  sub_dir="│   "
+  nb_files="$(ls -1 $1 | wc -l)"
+  i=1
   for path in "$1"/*; do
-    echo "! $path"
-    if [ -d "$path" ]; then
-      print_tree "$path"
+
+    #echo "!! $i $nb_files"
+    if [ "$i" -eq "$nb_files" ]; then
+      sub_file="└── "
+      sub_dir="    "
     fi
+
+    echo "$3$sub_file$(basename "$path")"
+    if [ -d "$path" ]; then
+      print_tree "$path" "$(expr "$2" + 1)" "$3$sub_dir"
+    fi
+    i=$(expr "$i" + 1)
   done
 }
 
@@ -87,4 +99,5 @@ function print_result {
 
 #compare_hash
 #print_result
-print_tree "$MAIN_FIRST_DIR/$FIRST_DIR"
+echo "$FIRST_DIR"
+print_tree "$MAIN_FIRST_DIR/$FIRST_DIR" 0 ""
