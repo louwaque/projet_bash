@@ -66,6 +66,10 @@ function compare_hash {
   fi
 }
 
+function print_tree {
+  echo "un arbre"
+}
+
 function print_result {
   #alex voila là où tu vas faire tes devoirs :)
   #comme je peux pas laisser la fonction qu'avec des com j'affiche un truc
