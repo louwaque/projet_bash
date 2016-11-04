@@ -74,13 +74,22 @@ function print_tree {
   i=1
   for path in "$1"/*; do
 
-    #echo "!! $i $nb_files"
+    file_name="$(basename "$path")"
+    if [ "$(echo "$path" | grep "$modified_files")" ]; then
+      file_name="\e[33m$file_name\e[0m"
+    else
+      if [ "$(echo "$path" | grep "$new_files")" ]; then
+         file_name="\e[32m$file_name\e[0m"
+      fi
+    fi
+
     if [ "$i" -eq "$nb_files" ]; then
       sub_file="└── "
       sub_dir="    "
     fi
 
-    echo "$3$sub_file$(basename "$path")"
+    echo -e "$3$sub_file$file_name"
+
     if [ -d "$path" ]; then
       print_tree "$path" "$(expr "$2" + 1)" "$3$sub_dir"
     fi
@@ -94,10 +103,10 @@ function print_result {
   echo "les dossiers sont identiques"
 }
 
-#make_hash "$MAIN_FIRST_DIR/$FIRST_DIR"
-#make_hash "$MAIN_SECOND_DIR/$SECOND_DIR"
+make_hash "$MAIN_FIRST_DIR/$FIRST_DIR"
+make_hash "$MAIN_SECOND_DIR/$SECOND_DIR"
 
-#compare_hash
+compare_hash
 #print_result
 echo "$FIRST_DIR"
 print_tree "$MAIN_FIRST_DIR/$FIRST_DIR" 0 ""
