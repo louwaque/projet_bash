@@ -67,34 +67,42 @@ function compare_hash {
 }
 
 function print_tree {
-  local path sub_file sub_dir nb_files i
-  sub_file="├── "
-  sub_dir="│   "
-  nb_files="$(ls -1 $1 | wc -l)"
-  i=1
-  for path in "$1"/*; do
+  local my_path prefix_file prefix_dir previous_prefixes nb_files my_i dir_i dir_path
+  my_path="$1"
+  prefix_file="├── "
+  prefix_dir="│   "
+  previous_prefixes="$3"
+  nb_files="$(ls -1 "$(dirname "$my_path")" | wc -l)"
+  my_i="$2"
+  dir_i=1
 
-    file_name="$(basename "$path")"
-    if [ "$(echo "$path" | grep "$modified_files")" ]; then
-      file_name="\e[33m$file_name\e[0m"
-    else
-      if [ "$(echo "$path" | grep "$new_files")" ]; then
-         file_name="\e[32m$file_name\e[0m"
-      fi
+  file_name="$(basename "$my_path")"
+  if [ "$(echo "$my_path" | grep "$modified_files")" ]; then
+    file_name="\e[33m$file_name\e[0m"
+  else
+    if [ "$(echo "$my_path" | grep "$new_files")" ]; then
+       file_name="\e[32m$file_name\e[0m"
     fi
+  fi
 
-    if [ "$i" -eq "$nb_files" ]; then
-      sub_file="└── "
-      sub_dir="    "
-    fi
+  if [ "$my_i" -eq "$nb_files" ]; then
+    prefix_file="└── "
+    prefix_dir="    "
+  fi
 
-    echo -e "$3$sub_file$file_name"
+  if [ "$previous_prefixes" ]; then
+    echo -e "$previous_prefixes$prefix_file$file_name"
+  else
+    echo -e "$file_name"
+    prefix_dir="\0"
+  fi
 
-    if [ -d "$path" ]; then
-      print_tree "$path" "$(expr "$2" + 1)" "$3$sub_dir"
-    fi
-    i=$(expr "$i" + 1)
-  done
+  if [ -d "$my_path" ]; then
+    for dir_path in "$my_path"/*; do
+      print_tree "$dir_path" "$dir_i" "$previous_prefixes$prefix_dir"
+      dir_i=$(expr "$dir_i" + 1)
+    done
+  fi
 }
 
 function print_result {
@@ -108,5 +116,4 @@ make_hash "$MAIN_SECOND_DIR/$SECOND_DIR"
 
 compare_hash
 #print_result
-echo "$FIRST_DIR"
-print_tree "$MAIN_FIRST_DIR/$FIRST_DIR" 0 ""
+print_tree "$MAIN_FIRST_DIR/$FIRST_DIR" 1 ""
