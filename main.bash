@@ -1,37 +1,44 @@
 #!/bin/bash
 
 HASH_FILE="/tmp/bighash"
-MAIN_DIR="$PWD"
+MAIN_FIRST_DIR="$PWD"
 FIRST_DIR="dossier_1"
+MAIN_SECOND_DIR="$PWD"
 SECOND_DIR="dossier_2"
 
-# c pa b1 mm dosier  para
-if [[ -d "$1" && -d "$2" && "$(dirname "$1")" = "$(dirname "$2")" ]]; then
-  MAIN_DIR="$(dirname "$(realpath "$1")")"
+#si l'utilisateur veut comparer des dossiers spécifiques, sinon c'est dossier_1 et dossier_2 qui sont utilisés
+if [[ -d "$1" && -d "$2" ]]; then
+  MAIN_FIRST_DIR="$(dirname "$(realpath "$1")")"
   FIRST_DIR="$(basename "$1")"
+  MAIN_SECOND_DIR="$(dirname "$(realpath "$2")")"
   SECOND_DIR="$(basename "$2")"
 fi
 
 export HASH_FILE
-export MAIN_DIR
+export MAIN_FIRST_DIR
 export FIRST_DIR
+export MAIN_SECOND_DIR
 export SECOND_DIR
 
 if [ -f "$HASH_FILE" ]; then
   rm "$HASH_FILE"
 fi
 
+#hach tous les fichiers contenuent dans le repertoire donné en parametre et irra meme visiter les sous dossiers !
 function make_hash {
   local path
   for path in "$1"/*; do
     if [ -d "$path" ]; then
       if [ "$(ls -A "$path")" ]; then
+        #si c'est un dossier pas vide alors on part hacher les fichiers qui sont à l'interieur
         make_hash "$path"
       else
+        #si c'est un dossier vide alors on le rajoute au hach parce qu'il a besoin d'exister
         echo "" | md5sum | sed "s|-|$path/|g" >> "$HASH_FILE"
       fi
     else
       if [ -f "$path" ]; then
+        #si c'est un fichier alors on le hache
         md5sum "$(realpath "$path")" >> "$HASH_FILE"
       fi
     fi
@@ -39,10 +46,13 @@ function make_hash {
 }
 
 function compare_hash {
-  different_files="$(cat "$HASH_FILE" | sed -e "s|$MAIN_DIR/$FIRST_DIR||g" -e "s|$MAIN_DIR/$SECOND_DIR||g" | sort | uniq -u)"
+  #contient la liste des fichiers qui peuvent être modifiés ou qui existent que d'un seul coté
+  different_files="$(cat "$HASH_FILE" | sed -e "s|$MAIN_FIRST_DIR/$FIRST_DIR||g" -e "s|$MAIN_SECOND_DIR/$SECOND_DIR||g" | sort | uniq -u)"
 
+  #liste des fichiers modifiés
   modified_files="$(echo "$different_files" | cut -d ' ' -f 3 | sort | uniq -d)"
 
+  #liste des fichiers qui existent que dans un seul des deux repertoires
   new_files="$(echo "$different_files" | cut -d ' ' -f 3 | sort | uniq -u)"
 
   echo "modified_files:"
@@ -51,12 +61,59 @@ function compare_hash {
   echo "new_files:"
   if [[ ! -z "$new_files" ]]; then
     while read line; do
-      cat "$HASH_FILE" | grep "^[[:alnum:]]\{32\}[[:space:]]\{2\}$MAIN_DIR/\($FIRST_DIR\|$SECOND_DIR\)$line$" | cut -d ' ' -f 3 | sed "s|$MAIN_DIR||g"
+      cat "$HASH_FILE" | grep "^[[:alnum:]]\{32\}[[:space:]]\{2\}\($MAIN_FIRST_DIR/$FIRST_DIR\|$MAIN_SECOND_DIR/$SECOND_DIR\)$line$" | cut -d ' ' -f 3 | sed -e "s|$MAIN_FIRST_DIR||g" -e "s|$MAIN_SECOND_DIR||g"
     done < <(echo "$new_files")
   fi
 }
 
-make_hash "$MAIN_DIR/$FIRST_DIR"
-make_hash "$MAIN_DIR/$SECOND_DIR"
+function print_tree {
+  local my_path prefix_file prefix_dir previous_prefixes nb_files my_i dir_i dir_path
+  my_path="$1"
+  prefix_file="├── "
+  prefix_dir="│   "
+  previous_prefixes="$3"
+  nb_files="$(ls -1 "$(dirname "$my_path")" | wc -l)"
+  my_i="$2"
+  dir_i=1
+
+  file_name="$(basename "$my_path")"
+  if [ "$(echo "$my_path" | grep "$modified_files")" ]; then
+    file_name="\e[33m$file_name\e[0m"
+  else
+    if [ "$(echo "$my_path" | grep "$new_files")" ]; then
+       file_name="\e[32m$file_name\e[0m"
+    fi
+  fi
+
+  if [ "$my_i" -eq "$nb_files" ]; then
+    prefix_file="└── "
+    prefix_dir="    "
+  fi
+
+  if [ "$previous_prefixes" ]; then
+    echo -e "$previous_prefixes$prefix_file$file_name"
+  else
+    echo -e "$file_name"
+    prefix_dir="\0"
+  fi
+
+  if [ -d "$my_path" ]; then
+    for dir_path in "$my_path"/*; do
+      print_tree "$dir_path" "$dir_i" "$previous_prefixes$prefix_dir"
+      dir_i=$(expr "$dir_i" + 1)
+    done
+  fi
+}
+
+function print_result {
+  #alex voila là où tu vas faire tes devoirs :)
+  #comme je peux pas laisser la fonction qu'avec des com j'affiche un truc
+  echo "les dossiers sont identiques"
+}
+
+make_hash "$MAIN_FIRST_DIR/$FIRST_DIR"
+make_hash "$MAIN_SECOND_DIR/$SECOND_DIR"
 
 compare_hash
+#print_result
+print_tree "$MAIN_FIRST_DIR/$FIRST_DIR" 1 ""
