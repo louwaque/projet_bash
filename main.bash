@@ -74,7 +74,7 @@ function compare_hash {
 }
 
 function print_tree {
-  local my_path prefix_file prefix_dir previous_prefixes nb_files my_i dir_i dir_path
+  local my_path prefix_file prefix_dir previous_prefixes nb_files my_i dir_i dir_path file_list
   my_path="$1"
   prefix_file="├── "
   prefix_dir="│   "
@@ -105,8 +105,9 @@ function print_tree {
   fi
 
   if [ -d "$my_path" ]; then
-    for dir_path in "$my_path"/*; do
-      print_tree "$dir_path" "$dir_i" "$previous_prefixes$prefix_dir"
+    file_list="$(ls "$my_path")"
+    for dir_path in $file_list; do
+      print_tree "$my_path/$dir_path" "$dir_i" "$previous_prefixes$prefix_dir"
       dir_i=$(expr "$dir_i" + 1)
     done
   fi
