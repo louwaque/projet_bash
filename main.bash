@@ -119,6 +119,21 @@ function print_result {
   fi
   nb_different_files="$(expr "$(echo "$modified_files" | wc -l)" "+" "$(echo "$new_files" | wc -l)")"
   echo "$nb_different_files fichers diff"
+  if [ -f "fichiers_diff" ]; then
+    rm "fichiers_diff"
+  fi
+  for path in $modified_files; do
+    echo "$(realpath "$MAIN_FIRST_DIR/$FIRST_DIR/$path")" >> fichiers_diff
+    echo "$(realpath "$MAIN_SECOND_DIR/$SECOND_DIR/$path")" >> fichiers_diff
+  done
+  for path in $new_files_parent; do
+    if [ "$(echo "$path" | grep "^/$FIRST_DIR")" ]; then
+      echo "$(realpath "$MAIN_FIRST_DIR/$path")" >> fichiers_diff
+    fi
+    if [ "$(echo "$path" | grep "^/$SECOND_DIR")" ]; then
+      echo "$(realpath "$MAIN_SECOND_DIR/$path")" >> fichiers_diff
+    fi
+  done
 }
 
 make_hash "$MAIN_FIRST_DIR/$FIRST_DIR"
