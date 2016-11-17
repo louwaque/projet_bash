@@ -114,14 +114,16 @@ function print_tree {
 }
 
 function print_result {
-  #alex voila là où tu vas faire tes devoirs :)
-  #comme je peux pas laisser la fonction qu'avec des com j'affiche un truc
-  echo "les dossiers sont identiques"
+  if [ -z "$different_files" ]; then
+    echo "les dossiers sont identiques"
+  fi
+  nb_different_files="$(expr "$(echo "$modified_files" | wc -l)" "+" "$(echo "$new_files" | wc -l)")"
+  echo "$nb_different_files fichers diff"
 }
 
 make_hash "$MAIN_FIRST_DIR/$FIRST_DIR"
 make_hash "$MAIN_SECOND_DIR/$SECOND_DIR"
 
 compare_hash
-#print_result
+print_result
 print_tree "$MAIN_FIRST_DIR/$FIRST_DIR" 1 ""
