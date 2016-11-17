@@ -84,10 +84,10 @@ function print_tree {
   dir_i=1
 
   file_name="$(basename "$my_path")"
-  if [ "$(echo "$my_path" | grep "$modified_files")" ]; then
+  if [[ "$modified_files" && "$(echo "$my_path" | grep "$modified_files")" ]]; then
     file_name="\e[33m$file_name\e[0m"
   else
-    if [ "$(echo "$my_path" | grep "$new_files")" ]; then
+    if [[ "$new_files" && "$(echo "$my_path" | grep "$new_files")" ]]; then
        file_name="\e[32m$file_name\e[0m"
     fi
   fi
