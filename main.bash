@@ -29,13 +29,8 @@ function make_hash {
   local path
   for path in "$1"/*; do
     if [ -d "$path" ]; then
-      if [ "$(ls -A "$path")" ]; then
-        #si c'est un dossier pas vide alors on part hacher les fichiers qui sont à l'interieur
-        make_hash "$path"
-      else
-        #si c'est un dossier vide alors on le rajoute au hach parce qu'il a besoin d'exister
-        echo "" | md5sum | sed "s|-|$path/|g" >> "$HASH_FILE"
-      fi
+      echo "" | md5sum | sed "s|-|$path/|g" >> "$HASH_FILE"
+      make_hash "$path"
     else
       if [ -f "$path" ]; then
         #si c'est un fichier alors on le hache
@@ -75,7 +70,10 @@ function compare_hash {
 
 function print_tree {
   local my_path prefix_file prefix_dir previous_prefixes nb_files my_i dir_i dir_path file_list
-  my_path="$1"
+  my_path="$(realpath "$1")"
+  if [ -d "$my_path" ]; then
+    my_path="$my_path/"
+  fi
   prefix_file="├── "
   prefix_dir="│   "
   previous_prefixes="$3"
@@ -117,7 +115,7 @@ function print_result {
   if [ -z "$different_files" ]; then
     echo "les dossiers sont identiques"
   fi
-  nb_different_files="$(expr "$(echo "$modified_files" | wc -l)" "+" "$(echo "$new_files" | wc -l)")"
+  nb_different_files="$(expr "$(echo "$modified_files" | grep -v ".*/$" | wc -l)" "+" "$(echo "$new_files" | grep -v ".*/$" | wc -l)")"
   echo "$nb_different_files fichers diff"
   if [ -f "fichiers_diff" ]; then
     rm "fichiers_diff"
@@ -142,3 +140,4 @@ make_hash "$MAIN_SECOND_DIR/$SECOND_DIR"
 compare_hash
 print_result
 print_tree "$MAIN_FIRST_DIR/$FIRST_DIR" 1 ""
+print_tree "$MAIN_SECOND_DIR/$SECOND_DIR" 1 ""
