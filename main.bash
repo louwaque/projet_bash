@@ -50,14 +50,6 @@ function compare_hash {
   #liste des fichiers qui existent que dans un seul des deux repertoires
   new_files="$(echo "$different_files" | cut -d ' ' -f 3 | sort | uniq -u)"
 
-  #new_files avec le dossier parent
-  # if [[ ! -z "$new_files" ]]; then
-  #   while read line; do
-  #     file_parent="$(cat "$HASH_FILE" | grep "^[[:alnum:]]\{32\}[[:space:]]\{2\}\($MAIN_FIRST_DIR/$FIRST_DIR\|$MAIN_SECOND_DIR/$SECOND_DIR\)$line$" | cut -d ' ' -f 3 | sed -e "s|$MAIN_FIRST_DIR||g" -e "s|$MAIN_SECOND_DIR||g")"
-  #     #new_files_parent="$(echo -e "$file_parent\n$new_files_parent")"
-  #     new_files_parent+=$'\n'"$file_parent"
-  #   done < <(echo "$new_files")
-  # fi
   new_files_parent=""
   if [ "$new_files" ]; then
     for file in $new_files; do
