@@ -42,7 +42,7 @@ function make_hash {
 
 function compare_hash {
   #contient la liste des fichiers qui peuvent être modifiés ou qui existent que d'un seul coté
-  different_files="$(cat "$HASH_FILE" | sed -e "s|$MAIN_FIRST_DIR/$FIRST_DIR||g" -e "s|$MAIN_SECOND_DIR/$SECOND_DIR||g" | sort | uniq -u)"
+  different_files="$(cat "$HASH_FILE" | sed -e "s|$MAIN_FIRST_DIR/$FIRST_DIR/|/|g" -e "s|$MAIN_SECOND_DIR/$SECOND_DIR/|/|g" | sort | uniq -u)"
 
   #liste des fichiers modifiés
   modified_files="$(echo "$different_files" | cut -d ' ' -f 3 | sort | uniq -d)"
@@ -51,12 +51,27 @@ function compare_hash {
   new_files="$(echo "$different_files" | cut -d ' ' -f 3 | sort | uniq -u)"
 
   #new_files avec le dossier parent
-  if [[ ! -z "$new_files" ]]; then
-    while read line; do
-      file_parent="$(cat "$HASH_FILE" | grep "^[[:alnum:]]\{32\}[[:space:]]\{2\}\($MAIN_FIRST_DIR/$FIRST_DIR\|$MAIN_SECOND_DIR/$SECOND_DIR\)$line$" | cut -d ' ' -f 3 | sed -e "s|$MAIN_FIRST_DIR||g" -e "s|$MAIN_SECOND_DIR||g")"
-      new_files_parent="$(echo -e "$file_parent\n$new_files_parent")"
-    done < <(echo "$new_files")
+  # if [[ ! -z "$new_files" ]]; then
+  #   while read line; do
+  #     file_parent="$(cat "$HASH_FILE" | grep "^[[:alnum:]]\{32\}[[:space:]]\{2\}\($MAIN_FIRST_DIR/$FIRST_DIR\|$MAIN_SECOND_DIR/$SECOND_DIR\)$line$" | cut -d ' ' -f 3 | sed -e "s|$MAIN_FIRST_DIR||g" -e "s|$MAIN_SECOND_DIR||g")"
+  #     #new_files_parent="$(echo -e "$file_parent\n$new_files_parent")"
+  #     new_files_parent+=$'\n'"$file_parent"
+  #   done < <(echo "$new_files")
+  # fi
+  new_files_parent=""
+  if [ "$new_files" ]; then
+    for file in $new_files; do
+      if [ -e "$MAIN_FIRST_DIR/$FIRST_DIR/$file" ]; then
+        new_files_parent+="/$FIRST_DIR$file"$'\n'
+      fi
+      if [ -e "$MAIN_SECOND_DIR/$SECOND_DIR/$file" ]; then
+        new_files_parent+="/$SECOND_DIR$file"$'\n'
+      fi
+    done
   fi
+
+  echo "different_files:"
+  echo "$different_files"
 
   echo "modified_files:"
   echo "$modified_files"
@@ -108,17 +123,17 @@ function print_tree {
   if [ -d "$my_path" ]; then
     file_list="$(ls "$my_path")"
 
-    if [ "$(echo "$my_path" | grep "$MAIN_FIRST_DIR/$FIRST_DIR")" ]; then
+    if [ "$(echo "$my_path" | grep "$MAIN_FIRST_DIR/$FIRST_DIR/")" ]; then
       new_path="$(echo "$my_path" | sed "s|$MAIN_FIRST_DIR/$FIRST_DIR|$MAIN_SECOND_DIR/$SECOND_DIR|g")"
       new_path="$(realpath --relative-to="$MAIN_FIRST_DIR" "$new_path")"
     fi
-    if [ "$(echo "$my_path" | grep "$MAIN_SECOND_DIR/$SECOND_DIR")" ]; then
+    if [ "$(echo "$my_path" | grep "$MAIN_SECOND_DIR/$SECOND_DIR/")" ]; then
       new_path="$(echo "$my_path" | sed "s|$MAIN_SECOND_DIR/$SECOND_DIR|$MAIN_FIRST_DIR/$FIRST_DIR|g")"
       new_path="$(realpath --relative-to="$MAIN_SECOND_DIR" "$new_path")"
     fi
 
     for truc in $new_files_parent; do
-      if [ "$(echo "$(dirname "$truc")" | grep "$new_path$")" ]; then
+      if [[ "$new_path" && "$(echo "$(dirname "$truc")" | grep "$new_path$")" ]]; then
         file_list+=$'\n'"$(basename "$truc")"
       fi
     done
