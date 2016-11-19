@@ -88,15 +88,17 @@ function print_tree {
   my_i="$2"
   dir_i=1
 
+
   file_name="$(basename "$my_path")"
-  if [[ "$modified_files" && "$(echo "$my_path" | grep "$modified_files")" ]]; then
-    file_name="\e[33m$file_name\e[0m"
-  else
-    if [[ "$new_files" && "$(echo "$my_path" | grep "$new_files")" ]]; then
-       file_name="\e[32m$file_name\e[0m"
+  if [ -e "$my_path" ]; then
+    if [[ "$modified_files" && "$(echo "$my_path" | grep "$modified_files")" ]]; then
+      file_name="\e[33m$file_name\e[0m"
+    else
+      if [[ "$new_files" && "$(echo "$my_path" | grep "$new_files")" ]]; then
+         file_name="\e[32m$file_name\e[0m"
+      fi
     fi
-  fi
-  if [ ! -e "$my_path" ]; then
+  else
     file_name="\e[31m$file_name\e[0m"
   fi
 
