@@ -69,15 +69,15 @@ function compare_hash {
 }
 
 function print_tree {
-  local my_path prefix_file prefix_dir previous_prefixes nb_files my_i dir_i dir_path file_list
+  local my_path prefix_file prefix_dir previous_prefixes nb_files my_i dir_i dir_path file_list file_list_nb_files
   my_path="$(realpath "$1")"
   if [ -d "$my_path" ]; then
     my_path="$my_path/"
   fi
   prefix_file="├── "
   prefix_dir="│   "
-  previous_prefixes="$3"
-  nb_files="$(ls -1 "$(dirname "$my_path")" | wc -l)"
+  previous_prefixes="$4"
+  nb_files="$3"
   my_i="$2"
   dir_i=1
 
@@ -88,6 +88,9 @@ function print_tree {
     if [[ "$new_files" && "$(echo "$my_path" | grep "$new_files")" ]]; then
        file_name="\e[32m$file_name\e[0m"
     fi
+  fi
+  if [ ! -e "$my_path" ]; then
+    file_name="\e[31m$file_name\e[0m"
   fi
 
   if [ "$my_i" -eq "$nb_files" ]; then
@@ -104,8 +107,25 @@ function print_tree {
 
   if [ -d "$my_path" ]; then
     file_list="$(ls "$my_path")"
+
+    if [ "$(echo "$my_path" | grep "$MAIN_FIRST_DIR/$FIRST_DIR")" ]; then
+      new_path="$(echo "$my_path" | sed "s|$MAIN_FIRST_DIR/$FIRST_DIR|$MAIN_SECOND_DIR/$SECOND_DIR|g")"
+      new_path="$(realpath --relative-to="$MAIN_FIRST_DIR" "$new_path")"
+    fi
+    if [ "$(echo "$my_path" | grep "$MAIN_SECOND_DIR/$SECOND_DIR")" ]; then
+      new_path="$(echo "$my_path" | sed "s|$MAIN_SECOND_DIR/$SECOND_DIR|$MAIN_FIRST_DIR/$FIRST_DIR|g")"
+      new_path="$(realpath --relative-to="$MAIN_SECOND_DIR" "$new_path")"
+    fi
+
+    for truc in $new_files_parent; do
+      if [ "$(echo "$(dirname "$truc")" | grep "$new_path$")" ]; then
+        file_list+=$'\n'"$(basename "$truc")"
+      fi
+    done
+
+    file_list_nb_files="$(echo "$file_list" | wc -l)"
     for dir_path in $file_list; do
-      print_tree "$my_path/$dir_path" "$dir_i" "$previous_prefixes$prefix_dir"
+      print_tree "$my_path/$dir_path" "$dir_i" "$file_list_nb_files" "$previous_prefixes$prefix_dir"
       dir_i=$(expr "$dir_i" + 1)
     done
   fi
@@ -139,5 +159,5 @@ make_hash "$MAIN_SECOND_DIR/$SECOND_DIR"
 
 compare_hash
 print_result
-print_tree "$MAIN_FIRST_DIR/$FIRST_DIR" 1 ""
-print_tree "$MAIN_SECOND_DIR/$SECOND_DIR" 1 ""
+print_tree "$MAIN_FIRST_DIR/$FIRST_DIR" 1 0 ""
+print_tree "$MAIN_SECOND_DIR/$SECOND_DIR" 1 0 ""
