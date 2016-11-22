@@ -5,6 +5,8 @@ MAIN_FIRST_DIR="$PWD"
 FIRST_DIR="dossier_1"
 MAIN_SECOND_DIR="$PWD"
 SECOND_DIR="dossier_2"
+#permet aux boucles for de ne séparer qu'avec un saut à la ligne
+IFS=$(echo -en "\n\b")
 
 #si l'utilisateur veut comparer des dossiers spécifiques, sinon c'est dossier_1 et dossier_2 qui sont utilisés
 if [[ -d "$1" && -d "$2" ]]; then
@@ -13,12 +15,6 @@ if [[ -d "$1" && -d "$2" ]]; then
   MAIN_SECOND_DIR="$(dirname "$(realpath "$2")")"
   SECOND_DIR="$(basename "$2")"
 fi
-
-export HASH_FILE
-export MAIN_FIRST_DIR
-export FIRST_DIR
-export MAIN_SECOND_DIR
-export SECOND_DIR
 
 if [ -f "$HASH_FILE" ]; then
   rm "$HASH_FILE"
@@ -50,7 +46,7 @@ function compare_hash {
                     | sort | uniq -u)"
 
   #une variable intermediaire pour éviter de faire deux fois la même chose
-  files_without_hash="$(echo "$different_files" | cut -d ' ' -f 3 | sort)"
+  files_without_hash="$(echo "$different_files" | sed "s|.\{32\}  ||g" | sort)"
 
   #liste les fichiers modifiés
   #revient à avoir les lignes qui apparaissent deux fois
@@ -101,13 +97,21 @@ function print_tree {
   my_i="$2"
   dir_i=1
 
-
+  if [ "$(echo "$my_path" | grep "$MAIN_FIRST_DIR/$FIRST_DIR/")" ]; then
+    new_path="/$(realpath --relative-to="$MAIN_FIRST_DIR" "$my_path")"
+  fi
+  if [ "$(echo "$my_path" | grep "$MAIN_SECOND_DIR/$SECOND_DIR/")" ]; then
+    new_path="/$(realpath --relative-to="$MAIN_SECOND_DIR" "$my_path")"
+  fi
+  #echo "! $new_path"
   file_name="$(basename "$my_path")"
   if [ -e "$my_path" ]; then
-    if [[ "$modified_files" && "$(echo "$my_path" | grep "$modified_files")" ]]; then
+    #if [[ "$modified_files" && "$(echo "$my_path" | grep "$modified_files")" ]]; then
+    if [[ "$modified_files" && "$(echo "$modified_files" | grep "$new_path")" ]]; then
       file_name="\e[33m$file_name\e[0m"
     else
-      if [[ "$new_files" && "$(echo "$my_path" | grep "$new_files")" ]]; then
+      #if [[ "$new_files_parent" && "$(echo "$my_path" | grep "$new_files_parent")" ]]; then
+      if [[ "$new_files_parent" && "$(echo "$new_files_parent" | grep "$new_path")" ]]; then
          file_name="\e[32m$file_name\e[0m"
       fi
     fi
