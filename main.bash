@@ -97,21 +97,19 @@ function print_tree {
   my_i="$2"
   dir_i=1
 
-  if [ "$(echo "$my_path" | grep "$MAIN_FIRST_DIR/$FIRST_DIR/")" ]; then
-    new_path="/$(realpath --relative-to="$MAIN_FIRST_DIR" "$my_path")"
-  fi
-  if [ "$(echo "$my_path" | grep "$MAIN_SECOND_DIR/$SECOND_DIR/")" ]; then
-    new_path="/$(realpath --relative-to="$MAIN_SECOND_DIR" "$my_path")"
-  fi
-  #echo "! $new_path"
+  my_path_parent="$(echo "$my_path" \
+                  | sed -e "s|^$MAIN_FIRST_DIR/|/|g" \
+                        -e "s|^$MAIN_SECOND_DIR/|/|g")"
+  my_path_without_parent="$(echo "$my_path_parent" \
+                          | sed -e "s|^/$FIRST_DIR/|/|g" \
+                                -e "s|^/$SECOND_DIR/|/|g")"
+
   file_name="$(basename "$my_path")"
   if [ -e "$my_path" ]; then
-    #if [[ "$modified_files" && "$(echo "$my_path" | grep "$modified_files")" ]]; then
-    if [[ "$modified_files" && "$(echo "$modified_files" | grep "$new_path")" ]]; then
+    if [[ "$modified_files" && "$(echo "$modified_files" | grep "^$my_path_without_parent$")" ]]; then
       file_name="\e[33m$file_name\e[0m"
     else
-      #if [[ "$new_files_parent" && "$(echo "$my_path" | grep "$new_files_parent")" ]]; then
-      if [[ "$new_files_parent" && "$(echo "$new_files_parent" | grep "$new_path")" ]]; then
+      if [[ "$new_files_parent" && "$(echo "$new_files_parent" | grep "^$my_path_parent$")" ]]; then
          file_name="\e[32m$file_name\e[0m"
       fi
     fi
