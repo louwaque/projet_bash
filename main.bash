@@ -5,7 +5,7 @@ MAIN_FIRST_DIR="$PWD"
 FIRST_DIR="dossier_1"
 MAIN_SECOND_DIR="$PWD"
 SECOND_DIR="dossier_2"
-#permet aux boucles for de ne séparer qu'avec un saut à la ligne
+#permet aux boucles for de ne séparer qu'avec un saut à la ligne et pas un espace
 IFS=$(echo -en "\n\b")
 
 #si l'utilisateur veut comparer des dossiers spécifiques, sinon c'est dossier_1 et dossier_2 qui sont utilisés
@@ -86,6 +86,7 @@ function compare_hash {
 function print_tree {
   local my_path prefix_file prefix_dir previous_prefixes nb_files \
         my_i dir_i dir_path file_list file_list_nb_files
+  #chemin absolu du dossier ou fichier courant
   my_path="$(realpath "$1")"
   if [ -d "$my_path" ]; then
     my_path="$my_path/"
@@ -93,13 +94,16 @@ function print_tree {
   prefix_file="├── "
   prefix_dir="│   "
   previous_prefixes="$4"
+  #nombre de fichiers dans le dossier
   nb_files="$3"
+  #le numéro du fichier ou dossier courant, 1 <= my_i <= nb_files
   my_i="$2"
-  dir_i=1
 
+  # passe de /home/truc/dossier1/machin à /dossier1/machin
   my_path_parent="$(echo "$my_path" \
                   | sed -e "s|^$MAIN_FIRST_DIR/|/|g" \
                         -e "s|^$MAIN_SECOND_DIR/|/|g")"
+  #passe de /dossier1/machin à /machin
   my_path_without_parent="$(echo "$my_path_parent" \
                           | sed -e "s|^/$FIRST_DIR/|/|g" \
                                 -e "s|^/$SECOND_DIR/|/|g")"
@@ -107,13 +111,17 @@ function print_tree {
   file_name="$(basename "$my_path")"
   if [ -e "$my_path" ]; then
     if [[ "$modified_files" && "$(echo "$modified_files" | grep "^$my_path_without_parent$")" ]]; then
+      #si c'est un fichier modifié
       file_name="\e[33m$file_name\e[0m"
     else
       if [[ "$new_files_parent" && "$(echo "$new_files_parent" | grep "^$my_path_parent$")" ]]; then
-         file_name="\e[32m$file_name\e[0m"
+        #si c'est un nouveau dossier ou fichier
+        file_name="\e[32m$file_name\e[0m"
       fi
     fi
   else
+    #si le fichier ou dossier n'existe pas
+    #c'est qu'il vient de l'autre arborescence
     file_name="\e[31m$file_name\e[0m"
   fi
 
@@ -132,21 +140,28 @@ function print_tree {
   if [ -d "$my_path" ]; then
     file_list="$(ls "$my_path")"
 
+    #passe de /home/truc/dossier1/machin/bidule à dossier2/machin/bidule
     if [ "$(echo "$my_path" | grep "$MAIN_FIRST_DIR/$FIRST_DIR/")" ]; then
-      new_path="$(echo "$my_path" | sed "s|$MAIN_FIRST_DIR/$FIRST_DIR|$MAIN_SECOND_DIR/$SECOND_DIR|g")"
+      new_path="$(echo "$my_path" \
+                | sed "s|$MAIN_FIRST_DIR/$FIRST_DIR|$MAIN_SECOND_DIR/$SECOND_DIR|g")"
+      #peut être un prob ici
       new_path="$(realpath --relative-to="$MAIN_FIRST_DIR" "$new_path")"
     fi
     if [ "$(echo "$my_path" | grep "$MAIN_SECOND_DIR/$SECOND_DIR/")" ]; then
-      new_path="$(echo "$my_path" | sed "s|$MAIN_SECOND_DIR/$SECOND_DIR|$MAIN_FIRST_DIR/$FIRST_DIR|g")"
+      new_path="$(echo "$my_path" \
+                | sed "s|$MAIN_SECOND_DIR/$SECOND_DIR|$MAIN_FIRST_DIR/$FIRST_DIR|g")"
       new_path="$(realpath --relative-to="$MAIN_SECOND_DIR" "$new_path")"
     fi
 
+    #ajoute à file_list les fichiers et dossiers qui sont dans l'autre arborescence
     for file in $new_files_parent; do
+      #peut être plus mieux
       if [[ "$new_path" && "$(echo "$(dirname "$file")" | grep "$new_path$")" ]]; then
         file_list+=$'\n'"$(basename "$file")"
       fi
     done
 
+    dir_i=1
     file_list_nb_files="$(echo "$file_list" | wc -l)"
     for dir_path in $file_list; do
       print_tree "$my_path/$dir_path" "$dir_i" "$file_list_nb_files" "$previous_prefixes$prefix_dir"
@@ -160,6 +175,7 @@ function print_result {
     echo "les dossiers sont identiques"
   fi
 
+  #la somme des fichiers (pas des dossiers) modifiés et nouveaux
   nb_different_files="$(expr "$(echo "$modified_files" | grep -v ".*/$" | wc -l)" "+" "$(echo "$new_files" | grep -v ".*/$" | wc -l)")"
   echo "$nb_different_files fichers diff"
 
