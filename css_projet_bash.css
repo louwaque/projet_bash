@@ -1,0 +1,40 @@
+*{
+  font-family: sans-serif;
+}
+
+body{
+  background-image: url("blackwallpaper.jpg");
+}
+
+header{
+  background-color: white;
+  opacity: 0.3;
+  border-radius: 15px;
+  height: 10em;
+  margin-bottom: 4em;
+}
+
+h1{
+  padding-top: 60px;
+  font-size: auto;
+}
+
+section{
+  color: white;
+}
+
+footer{
+  background-color: white;
+  opacity: 0.3;
+  border-radius: 15px;
+  height: 50px;
+}
+
+footer p{
+  text-align: center;
+  padding-top: 15px;
+}
+
+h2{
+  font-size: 110%;
+}
