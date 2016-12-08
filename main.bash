@@ -5,8 +5,6 @@ MAIN_FIRST_DIR="$PWD"
 FIRST_DIR="dossier_1"
 MAIN_SECOND_DIR="$PWD"
 SECOND_DIR="dossier_2"
-#permet aux boucles for de ne séparer qu'avec un saut à la ligne et pas un espace
-IFS=$(echo -en "\n\b")
 
 SHOW_NB_DIFFERENT_FILES=true
 SHOW_DIFFERENT_FILES=true
@@ -17,6 +15,40 @@ SHOW_TREE_FIRST=true
 SHOW_TREE_SECOND=true
 MAKE_DIFF_FILE=true
 MAKE_HTML=true
+
+for i in "$@"
+do
+case $i in
+    -h|--helpme|--aide)
+    ;;
+    --nbficdiff)
+    ;;
+    --ficdiff)
+    ;;
+    --ficmod)
+    ;;
+    --nvfic)
+    ;;
+    --nvficprnt)
+    ;;
+    --arb1d)
+    ;;
+    --arb2d)
+    ;;
+    --ficfdiff)
+    ;;
+    --siteinternet|--siteweb)
+    ;;
+    --chs)
+    ;;
+    *)
+            # option inconue
+    ;;
+esac
+done
+
+#permet aux boucles for de ne séparer qu'avec un saut à la ligne et pas un espace
+IFS=$(echo -en "\n\b")
 
 #si l'utilisateur veut comparer des dossiers spécifiques, sinon c'est dossier_1 et dossier_2 qui sont utilisés
 if [[ -d "$1" && -d "$2" ]]; then
