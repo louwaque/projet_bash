@@ -8,6 +8,16 @@ SECOND_DIR="dossier_2"
 #permet aux boucles for de ne séparer qu'avec un saut à la ligne et pas un espace
 IFS=$(echo -en "\n\b")
 
+SHOW_NB_DIFFERENT_FILES=false
+SHOW_DIFFERENT_FILES=false
+SHOW_MODIFIED_FILES=false
+SHOW_NEW_FILES=false
+SHOW_NEW_PARENT_FILES=false
+SHOW_TREE_FIRST=false
+SHOW_TREE_SECOND=false
+MAKE_DIFF_FILE=false
+MAKE_HTML=false
+
 #si l'utilisateur veut comparer des dossiers spécifiques, sinon c'est dossier_1 et dossier_2 qui sont utilisés
 if [[ -d "$1" && -d "$2" ]]; then
   MAIN_FIRST_DIR="$(dirname "$(realpath "$1")")"
@@ -68,18 +78,6 @@ function compare_hash {
       fi
     done
   fi
-
-  echo "different_files:"
-  echo "$different_files"
-
-  echo "modified_files:"
-  echo "$modified_files"
-
-  echo "new_files:"
-  echo "$new_files"
-
-  echo "new_files_parent:"
-  echo "$new_files_parent"
 }
 
 #affiche un arbre avec de jolies couleurs
@@ -175,25 +173,57 @@ function print_result {
     echo "les dossiers sont identiques"
   fi
 
-  #la somme des fichiers (pas des dossiers) modifiés et nouveaux
-  nb_different_files="$(expr "$(echo "$modified_files" | grep -v ".*/$" | wc -l)" "+" "$(echo "$new_files" | grep -v ".*/$" | wc -l)")"
-  echo "$nb_different_files fichers diff"
-
-  if [ -f "fichiers_diff" ]; then
-    rm "fichiers_diff"
+  if [ $SHOW_NB_DIFFERENT_FILES = true ]; then
+    #la somme des fichiers (pas des dossiers) modifiés et nouveaux
+    nb_different_files="$(expr "$(echo "$modified_files" | grep -v ".*/$" | wc -l)" "+" "$(echo "$new_files" | grep -v ".*/$" | wc -l)")"
+    echo "$nb_different_files fichers diff"
   fi
-  for path in $modified_files; do
-    echo "$(realpath "$MAIN_FIRST_DIR/$FIRST_DIR/$path")" >> fichiers_diff
-    echo "$(realpath "$MAIN_SECOND_DIR/$SECOND_DIR/$path")" >> fichiers_diff
-  done
-  for path in $new_files_parent; do
-    if [ "$(echo "$path" | grep "^/$FIRST_DIR")" ]; then
-      echo "$(realpath "$MAIN_FIRST_DIR/$path")" >> fichiers_diff
+
+  if [ $SHOW_DIFFERENT_FILES = true ]; then
+    echo "different_files:"
+    echo "$different_files"
+  fi
+
+  if [ $SHOW_MODIFIED_FILES = true ]; then
+    echo "modified_files:"
+    echo "$modified_files"
+  fi
+
+  if [ $SHOW_NEW_FILES = true ]; then
+    echo "new_files:"
+    echo "$new_files"
+  fi
+
+  if [ $SHOW_NEW_PARENT_FILES = true ]; then
+    echo "new_files_parent:"
+    echo "$new_files_parent"
+  fi
+
+  if [ $MAKE_DIFF_FILE = true ]; then
+    if [ -f "fichiers_diff" ]; then
+      rm "fichiers_diff"
     fi
-    if [ "$(echo "$path" | grep "^/$SECOND_DIR")" ]; then
-      echo "$(realpath "$MAIN_SECOND_DIR/$path")" >> fichiers_diff
-    fi
-  done
+    for path in $modified_files; do
+      echo "$(realpath "$MAIN_FIRST_DIR/$FIRST_DIR/$path")" >> fichiers_diff
+      echo "$(realpath "$MAIN_SECOND_DIR/$SECOND_DIR/$path")" >> fichiers_diff
+    done
+    for path in $new_files_parent; do
+      if [ "$(echo "$path" | grep "^/$FIRST_DIR")" ]; then
+        echo "$(realpath "$MAIN_FIRST_DIR/$path")" >> fichiers_diff
+      fi
+      if [ "$(echo "$path" | grep "^/$SECOND_DIR")" ]; then
+        echo "$(realpath "$MAIN_SECOND_DIR/$path")" >> fichiers_diff
+      fi
+    done
+  fi
+
+  if [ $SHOW_TREE_FIRST = true ]; then
+    print_tree "$MAIN_FIRST_DIR/$FIRST_DIR" 1 0 ""
+  fi
+
+  if [ $SHOW_TREE_SECOND = true ]; then
+    print_tree "$MAIN_SECOND_DIR/$SECOND_DIR" 1 0 ""
+  fi
 }
 
 make_hash "$MAIN_FIRST_DIR/$FIRST_DIR"
@@ -201,5 +231,3 @@ make_hash "$MAIN_SECOND_DIR/$SECOND_DIR"
 compare_hash
 
 print_result
-print_tree "$MAIN_FIRST_DIR/$FIRST_DIR" 1 0 ""
-print_tree "$MAIN_SECOND_DIR/$SECOND_DIR" 1 0 ""
