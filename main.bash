@@ -6,44 +6,62 @@ FIRST_DIR="dossier_1"
 MAIN_SECOND_DIR="$PWD"
 SECOND_DIR="dossier_2"
 
-SHOW_NB_DIFFERENT_FILES=true
-SHOW_DIFFERENT_FILES=true
-SHOW_MODIFIED_FILES=true
-SHOW_NEW_FILES=true
-SHOW_NEW_PARENT_FILES=true
-SHOW_TREE_FIRST=true
-SHOW_TREE_SECOND=true
-MAKE_DIFF_FILE=true
-MAKE_HTML=true
+SHOW_NB_DIFFERENT_FILES=false
+SHOW_DIFFERENT_FILES=false
+SHOW_MODIFIED_FILES=false
+SHOW_NEW_FILES=false
+SHOW_NEW_PARENT_FILES=false
+SHOW_TREE_FIRST=false
+SHOW_TREE_SECOND=false
+MAKE_DIFF_FILE=false
+MAKE_HTML=false
 
 for i in "$@"
 do
 case $i in
-    -h|--helpme|--aide)
-    ;;
-    --nbficdiff)
-    ;;
-    --ficdiff)
-    ;;
-    --ficmod)
-    ;;
-    --nvfic)
-    ;;
-    --nvficprnt)
-    ;;
-    --arb1d)
-    ;;
-    --arb2d)
-    ;;
-    --ficfdiff)
-    ;;
-    --siteinternet|--siteweb)
-    ;;
-    --chs)
-    ;;
-    *)
-            # option inconue
-    ;;
+  -h|--help|--helpme|--aide)
+    echo -e "Usage: main.bash [options...] <dossier_1> <dossier_2>\nOptions:
+  --nbficdiff\tPermet d'afficher le nombre de fichiers différents.
+  --ficdiff\tPermet d'afficher la liste des fichiers différents.
+  --ficmod\tPermet d'afficher la liste des fichiers modifiés.
+  --nvfic\tPermet d'afficher la liste des nouveaux fichiers.
+  --nvficprnt\tPermet d'afficher la liste des nouveaux fichies ainsi que le dossier parrent.
+  --arb1d\tPermet d'afficher l'arborescence du premier dossier.
+  --arb2d\tPermet d'afficher l'arborescence du second fichier.
+  --ficfdif\tPermet d'afficher le fichier contenant la liste des fichiers différents.
+  --siteweb\tPermet d'accéder à la page HTML.
+  --helpme\tPermet d'accéder à l'aide."
+  ;;
+  --nbficdiff)
+    SHOW_NB_DIFFERENT_FILES=true
+  ;;
+  --ficdiff)
+    SHOW_DIFFERENT_FILES=true
+  ;;
+  --ficmod)
+    SHOW_MODIFIED_FILES=true
+  ;;
+  --nvfic)
+    SHOW_NEW_FILES=true
+  ;;
+  --nvficprnt)
+    SHOW_NEW_PARENT_FILES=true
+  ;;
+  --arb1d)
+    SHOW_TREE_FIRST=true
+  ;;
+  --arb2d)
+    SHOW_TREE_SECOND=true
+  ;;
+  --ficfdiff)
+    MAKE_DIFF_FILE=true
+  ;;
+  --siteinternet|--siteweb)
+    MAKE_HTML=true
+  ;;
+  *)
+  # option inconue
+  ;;
 esac
 done
 
