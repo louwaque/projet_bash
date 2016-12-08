@@ -1,31 +1,32 @@
 --nbficdiff
-
+Permet d'afficher le nombre de fichiers différents.
 
 --ficdiff
-
+Permet d'afficher la liste des fichiers différents.
 
 --ficmod
-
+Permet d'afficher la liste des fichiers modifiés.
 
 --nvfic
-
+Permet d'afficher la liste des nouveaux fichiers.
 
 --nvficprnt
-
+Permet d'afficher la liste des nouveaux fichies ainsi que le dossier parrent.
 
 --arb1d
-
+Permet d'afficher l'arborescence du premier dossier.
 
 --arb2d
-
+Permet d'afficher l'arborescence du second fichier.
 
 --ficfdif
-
+Permet d'afficher le fichier contenant la liste des fichiers différents.
 
 --siteweb
-
+Permet d'accéder à la page HTML.
 
 --chs
-
+Permet de choisir le dossier 1 et le dossier 2.
 
 --helpme
+Permet d'accéder à l'aide.
