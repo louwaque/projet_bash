@@ -79,12 +79,19 @@ while :; do
           break
         fi
       else
-        echo "option inconue: $1"
+        if [ "$1" ]; then
+          echo "option inconue: $1"
+        fi
         exit
       fi
     ;;
   esac
 done
+
+if [[ -z "$MAIN_FIRST_DIR" || -z "$MAIN_SECOND_DIR" ]]; then
+  echo "dossier_1 et/ou dossier_2 non renseigné(s)"
+  exit
+fi
 
 #permet aux boucles for de ne séparer qu'avec un saut à la ligne et pas un espace
 IFS=$(echo -en "\n\b")
