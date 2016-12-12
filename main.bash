@@ -13,7 +13,6 @@ MAKE_DIFF_FILE=false
 MAKE_HTML=false
 
 while :; do
-  echo "taille: $# fic: $1"
   case $1 in
     -h|--help|--helpme|--aide)
       echo -e "Usage: main.bash [options...] <dossier_1> <dossier_2>\nOptions:
@@ -27,7 +26,7 @@ while :; do
     --ficfdif\tPermet d'afficher le fichier contenant la liste des fichiers différents.
     --siteweb\tPermet d'accéder à la page HTML.
     --helpme\tPermet d'accéder à l'aide."
-      shift
+      exit
     ;;
     --nbficdiff)
       SHOW_NB_DIFFERENT_FILES=true
@@ -80,7 +79,8 @@ while :; do
           break
         fi
       else
-        break
+        echo "option inconue: $1"
+        exit
       fi
     ;;
   esac
