@@ -1,10 +1,6 @@
 #!/bin/bash
 
 HASH_FILE="/tmp/bighash"
-MAIN_FIRST_DIR="$PWD"
-FIRST_DIR="dossier_1"
-MAIN_SECOND_DIR="$PWD"
-SECOND_DIR="dossier_2"
 
 SHOW_NB_DIFFERENT_FILES=false
 SHOW_DIFFERENT_FILES=false
@@ -16,65 +12,82 @@ SHOW_TREE_SECOND=false
 MAKE_DIFF_FILE=false
 MAKE_HTML=false
 
-for i in "$@"
-do
-case $i in
-  -h|--help|--helpme|--aide)
-    echo -e "Usage: main.bash [options...] <dossier_1> <dossier_2>\nOptions:
-  --nbficdiff\tPermet d'afficher le nombre de fichiers différents.
-  --ficdiff\tPermet d'afficher la liste des fichiers différents.
-  --ficmod\tPermet d'afficher la liste des fichiers modifiés.
-  --nvfic\tPermet d'afficher la liste des nouveaux fichiers.
-  --nvficprnt\tPermet d'afficher la liste des nouveaux fichies ainsi que le dossier parrent.
-  --arb1d\tPermet d'afficher l'arborescence du premier dossier.
-  --arb2d\tPermet d'afficher l'arborescence du second fichier.
-  --ficfdif\tPermet d'afficher le fichier contenant la liste des fichiers différents.
-  --siteweb\tPermet d'accéder à la page HTML.
-  --helpme\tPermet d'accéder à l'aide."
-  ;;
-  --nbficdiff)
-    SHOW_NB_DIFFERENT_FILES=true
-  ;;
-  --ficdiff)
-    SHOW_DIFFERENT_FILES=true
-  ;;
-  --ficmod)
-    SHOW_MODIFIED_FILES=true
-  ;;
-  --nvfic)
-    SHOW_NEW_FILES=true
-  ;;
-  --nvficprnt)
-    SHOW_NEW_PARENT_FILES=true
-  ;;
-  --arb1d)
-    SHOW_TREE_FIRST=true
-  ;;
-  --arb2d)
-    SHOW_TREE_SECOND=true
-  ;;
-  --ficfdiff)
-    MAKE_DIFF_FILE=true
-  ;;
-  --siteinternet|--siteweb)
-    MAKE_HTML=true
-  ;;
-  *)
-  # option inconue
-  ;;
-esac
+while :; do
+  echo "taille: $# fic: $1"
+  case $1 in
+    -h|--help|--helpme|--aide)
+      echo -e "Usage: main.bash [options...] <dossier_1> <dossier_2>\nOptions:
+    --nbficdiff\tPermet d'afficher le nombre de fichiers différents.
+    --ficdiff\tPermet d'afficher la liste des fichiers différents.
+    --ficmod\tPermet d'afficher la liste des fichiers modifiés.
+    --nvfic\tPermet d'afficher la liste des nouveaux fichiers.
+    --nvficprnt\tPermet d'afficher la liste des nouveaux fichies ainsi que le dossier parrent.
+    --arb1d\tPermet d'afficher l'arborescence du premier dossier.
+    --arb2d\tPermet d'afficher l'arborescence du second fichier.
+    --ficfdif\tPermet d'afficher le fichier contenant la liste des fichiers différents.
+    --siteweb\tPermet d'accéder à la page HTML.
+    --helpme\tPermet d'accéder à l'aide."
+      shift
+    ;;
+    --nbficdiff)
+      SHOW_NB_DIFFERENT_FILES=true
+      shift
+    ;;
+    --ficdiff)
+      SHOW_DIFFERENT_FILES=true
+      shift
+    ;;
+    --ficmod)
+      SHOW_MODIFIED_FILES=true
+      shift
+    ;;
+    --nvfic)
+      SHOW_NEW_FILES=true
+      shift
+    ;;
+    --nvficprnt)
+      SHOW_NEW_PARENT_FILES=true
+      shift
+    ;;
+    --arb1d)
+      SHOW_TREE_FIRST=true
+      shift
+    ;;
+    --arb2d)
+      SHOW_TREE_SECOND=true
+      shift
+    ;;
+    --ficfdiff)
+      MAKE_DIFF_FILE=true
+      shift
+    ;;
+    --siteinternet|--siteweb)
+      MAKE_HTML=true
+      shift
+    ;;
+    *)
+      if [ -d "$1" ]; then
+        if [ $# -eq 2 ]; then
+          MAIN_FIRST_DIR="$(dirname "$(realpath "$1")")"
+          FIRST_DIR="$(basename "$1")"
+          shift
+          continue
+        fi
+        if [ $# -eq 1 ]; then
+          MAIN_SECOND_DIR="$(dirname "$(realpath "$1")")"
+          SECOND_DIR="$(basename "$1")"
+          shift
+          break
+        fi
+      else
+        break
+      fi
+    ;;
+  esac
 done
 
 #permet aux boucles for de ne séparer qu'avec un saut à la ligne et pas un espace
 IFS=$(echo -en "\n\b")
-
-#si l'utilisateur veut comparer des dossiers spécifiques, sinon c'est dossier_1 et dossier_2 qui sont utilisés
-if [[ -d "$1" && -d "$2" ]]; then
-  MAIN_FIRST_DIR="$(dirname "$(realpath "$1")")"
-  FIRST_DIR="$(basename "$1")"
-  MAIN_SECOND_DIR="$(dirname "$(realpath "$2")")"
-  SECOND_DIR="$(basename "$2")"
-fi
 
 if [ -f "$HASH_FILE" ]; then
   rm "$HASH_FILE"
@@ -213,7 +226,7 @@ function print_tree {
     file_list_nb_files="$(echo "$file_list" | wc -l)"
     for dir_path in $file_list; do
       print_tree "$my_path/$dir_path" "$dir_i" "$file_list_nb_files" "$previous_prefixes$prefix_dir"
-      dir_i=$(("dir_i"+1))
+      dir_i=$((dir_i+1))
     done
   fi
 }
