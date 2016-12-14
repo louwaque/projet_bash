@@ -1,7 +1,7 @@
---nbficdiff
+--nbficdif
 Permet d'afficher le nombre de fichiers différents.
 
---ficdiff
+--ficdif
 Permet d'afficher la liste des fichiers différents.
 
 --ficmod
@@ -13,17 +13,32 @@ Permet d'afficher la liste des nouveaux fichiers.
 --nvficprnt
 Permet d'afficher la liste des nouveaux fichies ainsi que le dossier parrent.
 
---arb1d
-Permet d'afficher l'arborescence du premier dossier.
-
---arb2d
-Permet d'afficher l'arborescence du second fichier.
-
 --ficfdif
-Permet d'afficher le fichier contenant la liste des fichiers différents.
+Permet de créer le fichier contenant la liste des fichiers différents.
 
 --siteweb
-Permet d'accéder à la page HTML.
+Permet de créer la page HTML.
 
 --helpme
 Permet d'accéder à l'aide.
+
+--arb1
+Permet d'afficher toute l'arborescence du dossier 1.
+
+--arb2
+Permet d'afficher toute l'arborescence du dossier 2.
+
+--non-arbmodif
+Permet de masquer les fichiers modifiers dans l'arborescence.
+
+--non-arbnv
+Permet de masquer les nouveau fichiers de l'arborescence.
+
+--non-arbinex
+Permet de masquer les fichiers diffétents de l'arborescence.
+
+--non-arbid
+Permet de masquer les fichiers identiques dans l'arborescence.
+
+--non-arbclr
+Permet de masquer les couleurs dans l'arborescence.

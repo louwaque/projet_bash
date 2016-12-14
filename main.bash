@@ -7,10 +7,15 @@ SHOW_DIFFERENT_FILES=false
 SHOW_MODIFIED_FILES=false
 SHOW_NEW_FILES=false
 SHOW_NEW_PARENT_FILES=false
-SHOW_TREE_FIRST=false
-SHOW_TREE_SECOND=false
 MAKE_DIFF_FILE=false
 MAKE_HTML=false
+SHOW_TREE_FIRST=false
+SHOW_TREE_SECOND=false
+SHOW_TREE_MODIF=true
+SHOW_TREE_NEW=true
+SHOW_TREE_NONEXISTENT=true
+SHOW_TREE_IDENTICALY=true
+SHOW_TREE_UNCOLORED=true
 
 while :; do
   case $1 in
@@ -21,11 +26,16 @@ while :; do
     --ficmod\tPermet d'afficher la liste des fichiers modifiés.
     --nvfic\tPermet d'afficher la liste des nouveaux fichiers.
     --nvficprnt\tPermet d'afficher la liste des nouveaux fichies ainsi que le dossier parrent.
-    --arb1d\tPermet d'afficher l'arborescence du premier dossier.
-    --arb2d\tPermet d'afficher l'arborescence du second fichier.
-    --ficfdif\tPermet d'afficher le fichier contenant la liste des fichiers différents.
+    --ficfdiff\tPermet d'afficher le fichier contenant la liste des fichiers différents.
     --siteweb\tPermet d'accéder à la page HTML.
-    --helpme\tPermet d'accéder à l'aide."
+    --helpme\tPermet d'accéder à l'aide.
+    --arb1\tPermet d'afficher toute l'arborescence du dossier 1.
+    --arb2\tPermet d'afficher toute l'arborescence du dossier 2.
+    --non-arbmodif\tPermet de masquer les fichiers modifiers dans l'arborescence.
+    --non-arbnv\tPermet de masquer les nouveau fichiers de l'arborescence.
+    --non-arbinex\tPermet de masquer les fichiers diffétents de l'arborescence.
+    --non-arbid\tPermet de masquer les fichiers identiques dans l'arborescence.
+    --non-arbclr\tPermet de masquer les couleurs dans l'arborescence."
       exit
     ;;
     --nbficdiff)
@@ -48,20 +58,40 @@ while :; do
       SHOW_NEW_PARENT_FILES=true
       shift
     ;;
-    --arb1d)
-      SHOW_TREE_FIRST=true
-      shift
-    ;;
-    --arb2d)
-      SHOW_TREE_SECOND=true
-      shift
-    ;;
     --ficfdiff)
       MAKE_DIFF_FILE=true
       shift
     ;;
     --siteinternet|--siteweb)
       MAKE_HTML=true
+      shift
+    ;;
+    --arb1)
+      SHOW_TREE_FIRST=true
+      shift
+    ;;
+    --arb2)
+      SHOW_TREE_SECOND=true
+      shift
+    ;;
+    --non-arbmodif)
+      SHOW_TREE_MODIF=false
+      shift
+    ;;
+    --non-arbnv)
+      SHOW_TREE_NEW=false
+      shift
+    ;;
+    --non-arbinex)
+      SHOW_TREE_NONEXISTENT=false
+      shift
+    ;;
+    --non-arbid)
+      SHOW_TREE_IDENTICALY=false
+      shift
+    ;;
+    --non-arbclr)
+      SHOW_TREE_UNCOLORED=false
       shift
     ;;
     *)
