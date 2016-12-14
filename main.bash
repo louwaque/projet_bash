@@ -12,7 +12,7 @@ SHOW_TREE_SECOND=false
 MAKE_DIFF_FILE=false
 MAKE_HTML=false
 
-while :; do
+while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help|--helpme|--aide)
       echo -e "Usage: main.bash [options...] <dossier_1> <dossier_2>\nOptions:
