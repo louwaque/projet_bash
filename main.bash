@@ -1,7 +1,8 @@
 #!/bin/bash
 
 HASH_FILE="/tmp/bighash"
-
+HTML_FILE_IN="site_projet_bash.html"
+HTML_FILE_OUT="diff.html"
 SHOW_NB_DIFFERENT_FILES=false
 SHOW_DIFFERENT_FILES=false
 SHOW_MODIFIED_FILES=false
@@ -98,6 +99,10 @@ IFS=$(echo -en "\n\b")
 
 if [ -f "$HASH_FILE" ]; then
   rm "$HASH_FILE"
+fi
+
+if [ $MAKE_HTML = true ]; then
+  cp "$HTML_FILE_IN" "$HTML_FILE_OUT"
 fi
 
 # met l'empreinte de tous les fichiers dans HASH_FILE
