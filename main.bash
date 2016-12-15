@@ -188,7 +188,7 @@ function compare_hash {
 #affiche un arbre avec de jolies couleurs
 function print_tree {
   local my_path prefix_file prefix_dir previous_prefixes nb_files \
-        my_i dir_i dir_path file_list file_list_nb_files
+        my_i dir_i dir_path file_list file_list_nb_files color
   #chemin absolu du dossier ou fichier courant
   my_path="$(realpath "$1")"
   if [ -d "$my_path" ]; then
@@ -216,16 +216,19 @@ function print_tree {
     if [[ "$modified_files" ]] && echo "$modified_files" | grep -q "^$my_path_without_parent$"; then
       #si c'est un fichier modifié
       file_name="\e[33m$file_name\e[0m"
+      color="#ff9900"
     else
       if [[ "$new_files_parent" ]] && echo "$new_files_parent" | grep -q "^$my_path_parent$"; then
         #si c'est un nouveau dossier ou fichier
         file_name="\e[32m$file_name\e[0m"
+        color="#27791d"
       fi
     fi
   else
     #si le fichier ou dossier n'existe pas
     #c'est qu'il vient de l'autre arborescence
     file_name="\e[31m$file_name\e[0m"
+    color="#cd0101"
   fi
 
   if [ "$my_i" -eq "$nb_files" ]; then
@@ -238,6 +241,14 @@ function print_tree {
   else
     echo -e "$file_name"
     prefix_dir="\0"
+  fi
+
+  file_name="$(basename "$my_path")"
+  if [ -d "$my_path" ]; then
+    ID="$RANDOM"
+    sed -i "s|\(<!-- arborescence -->\)|<li><input type=\"checkbox\" id=\"$ID\" />\n<i class=\"fa fa-angle-double-right\"></i>\n<i class=\"fa fa-angle-double-down\"></i>\n<label for=\"$ID\"><font color=\"$color\">$file_name</font></label>\n\n<ul>\n\1|g" "$HTML_FILE_OUT"
+  else
+    sed -i "s|\(<!-- arborescence -->\)|<li><font color=\"$color\">$file_name</font></li>\n\1|g" "$HTML_FILE_OUT"
   fi
 
   if [ -d "$my_path" ]; then
@@ -271,6 +282,9 @@ function print_tree {
       dir_i=$((dir_i+1))
     done
   fi
+  if [ "$my_i" -eq "$nb_files" ]; then
+      sed -i "s|\(<!-- arborescence -->\)|</ul></li>\n\n\1|g" "$HTML_FILE_OUT"
+  fi
 }
 
 function print_result {
@@ -278,10 +292,13 @@ function print_result {
     echo "les dossiers sont identiques"
   fi
 
+  nb_different_files=$(($(echo "$modified_files" | grep -cv ".*/$")+$(echo "$new_files" | grep -cv ".*/$")))
   if [ $SHOW_NB_DIFFERENT_FILES = true ]; then
     #la somme des fichiers (pas des dossiers) modifiés et nouveaux
-    nb_different_files=$(("$(echo "$modified_files" | grep -cv ".*/$")"+"$(echo "$new_files" | grep -cv ".*/$")"))
     echo "$nb_different_files fichers diff"
+  fi
+  if [ $MAKE_HTML = true ]; then
+    sed -i "s|<!-- nb_fichiers -->|$nb_different_files|g" "$HTML_FILE_OUT"
   fi
 
   if [ $SHOW_DIFFERENT_FILES = true ]; then

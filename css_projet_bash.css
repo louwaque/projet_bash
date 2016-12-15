@@ -1,12 +1,12 @@
-*{
+* {
   font-family: sans-serif;
 }
 
-body{
+body {
   background-image: url("blackwallpaper.jpg");
 }
 
-header{
+header {
   background-color: white;
   opacity: 0.3;
   border-radius: 15px;
@@ -14,27 +14,60 @@ header{
   margin-bottom: 4em;
 }
 
-h1{
+h1 {
   padding-top: 60px;
   font-size: auto;
 }
 
-section{
+section {
   color: white;
 }
 
-footer{
+footer {
   background-color: white;
   opacity: 0.3;
   border-radius: 15px;
   height: 50px;
 }
 
-footer p{
+footer p {
   text-align: center;
   padding-top: 15px;
 }
 
-h2{
+h2 {
   font-size: 110%;
+}
+
+/* fonctionnel */
+input {
+  display: none;
+}
+
+input ~ ul {
+  display: none;
+}
+
+input:checked ~ ul {
+  display: block;
+}
+
+input ~ .fa-angle-double-down {
+  display: none;
+}
+
+input:checked ~ .fa-angle-double-right {
+  display: none;
+}
+
+input:checked ~ .fa-angle-double-down {
+  display: inline;
+}
+
+/* habillage */
+li {
+  display: block;
+  font-family: 'Arial';
+  font-size: 15px;
+  padding: 0.2em;
 }
