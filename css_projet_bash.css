@@ -3,8 +3,11 @@
 }
 
 body {
-  background-image: url("blackwallpaper.jpg");
+  background-image: url("linux.png");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
+
 
 header {
   background-color: white;
