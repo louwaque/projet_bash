@@ -3,9 +3,11 @@
 }
 
 body {
-  background-image: url("linux.png");
+  background-image: url("background.jpg");
+  background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
+  background-size: cover;
 }
 
 header {
@@ -41,7 +43,22 @@ h2 {
   font-size: 110%;
 }
 
-/* fonctionnel */
+li {
+  display: block;
+  font-family: 'Arial';
+  font-size: 15px;
+  padding: 0.2em;
+}
+
+li label {
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
 input {
   display: none;
 }
@@ -64,16 +81,4 @@ input:checked ~ .fa-angle-double-right {
 
 input:checked ~ .fa-angle-double-down {
   display: inline;
-}
-
-/* habillage */
-li {
-  display: block;
-  font-family: 'Arial';
-  font-size: 15px;
-  padding: 0.2em;
-}
-
-li label {
-  cursor: pointer;
 }

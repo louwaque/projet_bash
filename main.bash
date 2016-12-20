@@ -133,6 +133,7 @@ fi
 
 if [ $MAKE_HTML = true ]; then
   cp "$HTML_FILE_IN" "$HTML_FILE_OUT"
+  sed -i "/\/\/style/a $(tr -d '\n' < css_projet_bash.css)" "$HTML_FILE_OUT"
 fi
 
 # met l'empreinte de tous les fichiers dans HASH_FILE
@@ -221,14 +222,14 @@ function print_tree {
       if [[ "$new_files_parent" ]] && echo "$new_files_parent" | grep -q "^$my_path_parent$"; then
         #si c'est un nouveau dossier ou fichier
         file_name="\e[32m$file_name\e[0m"
-        color="#27791d"
+        color="#43d231"
       fi
     fi
   else
     #si le fichier ou dossier n'existe pas
     #c'est qu'il vient de l'autre arborescence
     file_name="\e[31m$file_name\e[0m"
-    color="#cd0101"
+    color="#ff0909"
   fi
 
   if [ "$my_i" -eq "$nb_files" ]; then
@@ -243,12 +244,14 @@ function print_tree {
     prefix_dir="\0"
   fi
 
-  file_name="$(basename "$my_path")"
-  if [ -d "$my_path" ]; then
-    ID="$RANDOM"
-    sed -i "s|\(<!-- arborescence -->\)|<li><input type=\"checkbox\" id=\"$ID\" checked/>\n<i class=\"fa fa-angle-double-right\"></i>\n<i class=\"fa fa-angle-double-down\"></i>\n<label for=\"$ID\"><font color=\"$color\">$file_name</font></label>\n\n<ul>\n\1|g" "$HTML_FILE_OUT"
-  else
-    sed -i "s|\(<!-- arborescence -->\)|<li><font color=\"$color\">$file_name</font></li>\n\1|g" "$HTML_FILE_OUT"
+  if [ $MAKE_HTML = true ]; then
+    file_name="$(basename "$my_path")"
+    if [ -d "$my_path" ]; then
+      ID="$RANDOM"
+      sed -i "s|\(<!-- arborescence -->\)|<li><input type=\"checkbox\" id=\"$ID\" checked/>\n<i class=\"fa fa-angle-double-right\"></i>\n<i class=\"fa fa-angle-double-down\"></i>\n<label for=\"$ID\"><font color=\"$color\">$file_name</font></label>\n\n<ul>\n\1|g" "$HTML_FILE_OUT"
+    else
+      sed -i "s|\(<!-- arborescence -->\)|<li><a href=\"$my_path\"><font color=\"$color\">$file_name</font></a></li>\n\1|g" "$HTML_FILE_OUT"
+    fi
   fi
 
   if [ -d "$my_path" ]; then
@@ -282,7 +285,8 @@ function print_tree {
       dir_i=$((dir_i+1))
     done
   fi
-  if [ "$my_i" -eq "$nb_files" ]; then
+
+  if [[ $MAKE_HTML = true && "$my_i" -eq "$nb_files" ]]; then
       sed -i "s|\(<!-- arborescence -->\)|</ul></li>\n\n\1|g" "$HTML_FILE_OUT"
   fi
 }
