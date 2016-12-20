@@ -16,7 +16,7 @@ SHOW_TREE_MODIF=true
 SHOW_TREE_NEW=true
 SHOW_TREE_NONEXISTENT=true
 SHOW_TREE_IDENTICALY=true
-SHOW_TREE_UNCOLORED=true
+SHOW_TREE_UNCOLORED=false
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -92,7 +92,7 @@ while [[ $# -gt 0 ]]; do
       shift
     ;;
     --non-arbclr)
-      SHOW_TREE_UNCOLORED=false
+      SHOW_TREE_UNCOLORED=true
       shift
     ;;
     *)
