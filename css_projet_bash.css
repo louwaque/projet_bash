@@ -8,7 +8,6 @@ body {
   background-attachment: fixed;
 }
 
-
 header {
   background-color: white;
   opacity: 0.3;
@@ -73,4 +72,8 @@ li {
   font-family: 'Arial';
   font-size: 15px;
   padding: 0.2em;
+}
+
+li label {
+  cursor: pointer;
 }

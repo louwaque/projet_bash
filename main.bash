@@ -246,7 +246,7 @@ function print_tree {
   file_name="$(basename "$my_path")"
   if [ -d "$my_path" ]; then
     ID="$RANDOM"
-    sed -i "s|\(<!-- arborescence -->\)|<li><input type=\"checkbox\" id=\"$ID\" />\n<i class=\"fa fa-angle-double-right\"></i>\n<i class=\"fa fa-angle-double-down\"></i>\n<label for=\"$ID\"><font color=\"$color\">$file_name</font></label>\n\n<ul>\n\1|g" "$HTML_FILE_OUT"
+    sed -i "s|\(<!-- arborescence -->\)|<li><input type=\"checkbox\" id=\"$ID\" checked/>\n<i class=\"fa fa-angle-double-right\"></i>\n<i class=\"fa fa-angle-double-down\"></i>\n<label for=\"$ID\"><font color=\"$color\">$file_name</font></label>\n\n<ul>\n\1|g" "$HTML_FILE_OUT"
   else
     sed -i "s|\(<!-- arborescence -->\)|<li><font color=\"$color\">$file_name</font></li>\n\1|g" "$HTML_FILE_OUT"
   fi
