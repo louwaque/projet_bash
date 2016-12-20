@@ -186,10 +186,28 @@ function compare_hash {
   fi
 }
 
+function print_tree_file {
+  if [ "$previous_prefixes" ]; then
+    echo -e "$previous_prefixes$prefix_file\e[${term_color}m$file_name\e[0m"
+  else
+    echo -e "$file_name"
+    prefix_dir="\0"
+  fi
+
+  if [ $MAKE_HTML = true ]; then
+    if [ -d "$my_path" ]; then
+      ID="$RANDOM"
+      sed -i "s|\(<!-- arborescence -->\)|<li><input type=\"checkbox\" id=\"$ID\" checked/>\n<i class=\"fa fa-angle-double-right\"></i>\n<i class=\"fa fa-angle-double-down\"></i>\n<label for=\"$ID\"><font color=\"$html_color\">$file_name</font></label>\n\n<ul>\n\1|g" "$HTML_FILE_OUT"
+    else
+      sed -i "s|\(<!-- arborescence -->\)|<li><a href=\"$my_path\"><font color=\"$html_color\">$file_name</font></a></li>\n\1|g" "$HTML_FILE_OUT"
+    fi
+  fi
+}
+
 #affiche un arbre avec de jolies couleurs
 function print_tree {
   local my_path prefix_file prefix_dir previous_prefixes nb_files \
-        my_i dir_i dir_path file_list file_list_nb_files color
+        my_i dir_i dir_path file_list file_list_nb_files term_color html_color
   #chemin absolu du dossier ou fichier courant
   my_path="$(realpath "$1")"
   if [ -d "$my_path" ]; then
@@ -203,6 +221,11 @@ function print_tree {
   #le numéro du fichier ou dossier courant, 1 <= my_i <= nb_files
   my_i="$2"
 
+  if [ "$my_i" -eq "$nb_files" ]; then
+    prefix_file="└── "
+    prefix_dir="    "
+  fi
+
   # passe de /home/truc/dossier1/machin à /dossier1/machin
   my_path_parent="$(echo "$my_path" \
                   | sed -e "s|^$MAIN_FIRST_DIR/|/|g" \
@@ -213,70 +236,73 @@ function print_tree {
                                 -e "s|^/$SECOND_DIR/|/|g")"
 
   file_name="$(basename "$my_path")"
+  term_color="0"
+  html_color=""
   if [ -e "$my_path" ]; then
-    if [[ "$modified_files" ]] && echo "$modified_files" | grep -q "^$my_path_without_parent$"; then
+    if [[ $SHOW_TREE_MODIF = true && "$modified_files" ]] && echo "$modified_files" | grep -q "^$my_path_without_parent"; then #..parent$ peut être plus sur
       #si c'est un fichier modifié
-      file_name="\e[33m$file_name\e[0m"
-      color="#ff9900"
+      if [ $SHOW_TREE_UNCOLORED = false ]; then
+        term_color="33"
+        html_color="#ff9900"
+      else
+        file_name="$file_name ≈"
+      fi
+      print_tree_file
     else
-      if [[ "$new_files_parent" ]] && echo "$new_files_parent" | grep -q "^$my_path_parent$"; then
+      if [[ $SHOW_TREE_NEW = true && "$new_files_parent" ]] && echo "$new_files_parent" | grep -q "^$my_path_parent$"; then
         #si c'est un nouveau dossier ou fichier
-        file_name="\e[32m$file_name\e[0m"
-        color="#43d231"
+        if [ $SHOW_TREE_UNCOLORED = false ]; then
+          term_color="32"
+          html_color="#43d231"
+        else
+          file_name="$file_name +"
+        fi
+        print_tree_file
+      else
+        if [ $SHOW_TREE_IDENTICALY = true ]; then
+          print_tree_file
+        fi
       fi
     fi
   else
     #si le fichier ou dossier n'existe pas
     #c'est qu'il vient de l'autre arborescence
-    file_name="\e[31m$file_name\e[0m"
-    color="#ff0909"
-  fi
-
-  if [ "$my_i" -eq "$nb_files" ]; then
-    prefix_file="└── "
-    prefix_dir="    "
-  fi
-
-  if [ "$previous_prefixes" ]; then
-    echo -e "$previous_prefixes$prefix_file$file_name"
-  else
-    echo -e "$file_name"
-    prefix_dir="\0"
-  fi
-
-  if [ $MAKE_HTML = true ]; then
-    file_name="$(basename "$my_path")"
-    if [ -d "$my_path" ]; then
-      ID="$RANDOM"
-      sed -i "s|\(<!-- arborescence -->\)|<li><input type=\"checkbox\" id=\"$ID\" checked/>\n<i class=\"fa fa-angle-double-right\"></i>\n<i class=\"fa fa-angle-double-down\"></i>\n<label for=\"$ID\"><font color=\"$color\">$file_name</font></label>\n\n<ul>\n\1|g" "$HTML_FILE_OUT"
-    else
-      sed -i "s|\(<!-- arborescence -->\)|<li><a href=\"$my_path\"><font color=\"$color\">$file_name</font></a></li>\n\1|g" "$HTML_FILE_OUT"
+    if [ $SHOW_TREE_NONEXISTENT = true ]; then
+      if [ $SHOW_TREE_UNCOLORED = false ]; then
+        term_color="31"
+        html_color="#ff0909"
+      else
+        file_name="$file_name -"
+      fi
+      print_tree_file
     fi
   fi
 
   if [ -d "$my_path" ]; then
     file_list="$(ls "$my_path")"
 
-    #passe de /home/truc/dossier1/machin/bidule à dossier2/machin/bidule
-    if echo "$my_path" | grep -q "$MAIN_FIRST_DIR/$FIRST_DIR/"; then
-      new_path="$(echo "$my_path" \
-                | sed "s|$MAIN_FIRST_DIR/$FIRST_DIR|$MAIN_SECOND_DIR/$SECOND_DIR|g")"
-      #peut être un prob ici
-      new_path="$(realpath --relative-to="$MAIN_FIRST_DIR" "$new_path")"
-    fi
-    if echo "$my_path" | grep -q "$MAIN_SECOND_DIR/$SECOND_DIR/"; then
-      new_path="$(echo "$my_path" \
-                | sed "s|$MAIN_SECOND_DIR/$SECOND_DIR|$MAIN_FIRST_DIR/$FIRST_DIR|g")"
-      new_path="$(realpath --relative-to="$MAIN_SECOND_DIR" "$new_path")"
-    fi
-
-    #ajoute à file_list les fichiers et dossiers qui sont dans l'autre arborescence
-    for file in $new_files_parent; do
-      #peut être plus mieux
-      if [[ "$new_path" ]] && dirname "$file" | grep -q "$new_path$"; then
-        file_list+=$'\n'"$(basename "$file")"
+    if [ $SHOW_TREE_NONEXISTENT = true ]; then
+      #passe de /home/truc/dossier1/machin/bidule à dossier2/machin/bidule
+      if echo "$my_path" | grep -q "$MAIN_FIRST_DIR/$FIRST_DIR/"; then
+        new_path="$(echo "$my_path" \
+                  | sed "s|$MAIN_FIRST_DIR/$FIRST_DIR|$MAIN_SECOND_DIR/$SECOND_DIR|g")"
+        #peut être un prob ici
+        new_path="$(realpath --relative-to="$MAIN_FIRST_DIR" "$new_path")"
       fi
-    done
+      if echo "$my_path" | grep -q "$MAIN_SECOND_DIR/$SECOND_DIR/"; then
+        new_path="$(echo "$my_path" \
+                  | sed "s|$MAIN_SECOND_DIR/$SECOND_DIR|$MAIN_FIRST_DIR/$FIRST_DIR|g")"
+        new_path="$(realpath --relative-to="$MAIN_SECOND_DIR" "$new_path")"
+      fi
+
+      #ajoute à file_list les fichiers et dossiers qui sont dans l'autre arborescence
+      for file in $new_files_parent; do
+        #peut être plus mieux
+        if [[ "$new_path" ]] && dirname "$file" | grep -q "$new_path$"; then
+          file_list+=$'\n'"$(basename "$file")"
+        fi
+      done
+    fi
 
     dir_i=1
     file_list_nb_files="$(echo "$file_list" | wc -l)"
