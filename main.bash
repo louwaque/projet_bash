@@ -239,7 +239,7 @@ function print_tree {
   term_color="0"
   html_color=""
   if [ -e "$my_path" ]; then
-    if [[ $SHOW_TREE_MODIF = true && "$modified_files" ]] && echo "$modified_files" | grep -q "^$my_path_without_parent"; then #..parent$ peut être plus sur
+    if [[ $SHOW_TREE_MODIF = true || -d "$my_path" && "$modified_files" ]] && echo "$modified_files" | grep -q "^$my_path_without_parent"; then #..parent$ peut être plus sur
       #si c'est un fichier modifié
       if [ $SHOW_TREE_UNCOLORED = false ]; then
         term_color="33"
@@ -279,32 +279,35 @@ function print_tree {
   fi
 
   if [ -d "$my_path" ]; then
-    file_list="$(ls "$my_path")"
+    if [ $SHOW_TREE_IDENTICALY = true ]; then
+      file_list="$(ls "$my_path")"$'\n'
+    else
+      for file in $(ls "$my_path"); do
+        if [ $SHOW_TREE_MODIF = true ] && echo "$modified_files" | grep -q "$file"; then
+          file_list+="$file"$'\n'
+        fi
+        if [ $SHOW_TREE_NEW = true ] && echo "$new_files_parent" | grep -q "$file"; then
+          file_list+="$file"$'\n'
+        fi
+      done
+
+    fi
 
     if [ $SHOW_TREE_NONEXISTENT = true ]; then
       #passe de /home/truc/dossier1/machin/bidule à dossier2/machin/bidule
-      if echo "$my_path" | grep -q "$MAIN_FIRST_DIR/$FIRST_DIR/"; then
-        new_path="$(echo "$my_path" \
-                  | sed "s|$MAIN_FIRST_DIR/$FIRST_DIR|$MAIN_SECOND_DIR/$SECOND_DIR|g")"
-        #peut être un prob ici
-        new_path="$(realpath --relative-to="$MAIN_FIRST_DIR" "$new_path")"
-      fi
-      if echo "$my_path" | grep -q "$MAIN_SECOND_DIR/$SECOND_DIR/"; then
-        new_path="$(echo "$my_path" \
-                  | sed "s|$MAIN_SECOND_DIR/$SECOND_DIR|$MAIN_FIRST_DIR/$FIRST_DIR|g")"
-        new_path="$(realpath --relative-to="$MAIN_SECOND_DIR" "$new_path")"
-      fi
-
-      #ajoute à file_list les fichiers et dossiers qui sont dans l'autre arborescence
+      new_path="$(echo "$my_path" | sed -e "s|$MAIN_FIRST_DIR/$FIRST_DIR/|$SECOND_DIR/|g" -e "s|$MAIN_SECOND_DIR/$SECOND_DIR/|$FIRST_DIR/|g")"      #ajoute à file_list les fichiers et dossiers qui sont dans l'autre arborescence
+      new_path=${new_path::-1}
+      
       for file in $new_files_parent; do
         #peut être plus mieux
-        if [[ "$new_path" ]] && dirname "$file" | grep -q "$new_path$"; then
+        if dirname "$file" | grep -q "$new_path$"; then
           file_list+=$'\n'"$(basename "$file")"
         fi
       done
     fi
 
     dir_i=1
+    file_list="$(echo "$file_list" | sed '/^$/d')"
     file_list_nb_files="$(echo "$file_list" | wc -l)"
     for dir_path in $file_list; do
       print_tree "$my_path/$dir_path" "$dir_i" "$file_list_nb_files" "$previous_prefixes$prefix_dir"
