@@ -310,7 +310,7 @@ function print_tree {
           file_list+="$file"$'\n'
         fi
       done
-
+      file_list="$(echo "$file_list" | uniq)"
     fi
 
     if [ $SHOW_TREE_NONEXISTENT = true ]; then
