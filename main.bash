@@ -21,22 +21,42 @@ SHOW_TREE_UNCOLORED=false
 while [[ $# -gt 0 ]]; do
   case $1 in
     -h|--help|--helpme|--aide)
-      echo -e "Usage: main.bash [options...] <dossier_1> <dossier_2>\nOptions:
-    --nbficdiff\tPermet d'afficher le nombre de fichiers différents.
-    --ficdiff\tPermet d'afficher la liste des fichiers différents.
-    --ficmod\tPermet d'afficher la liste des fichiers modifiés.
-    --nvfic\tPermet d'afficher la liste des nouveaux fichiers.
-    --nvficprnt\tPermet d'afficher la liste des nouveaux fichies ainsi que le dossier parrent.
-    --ficfdiff\tPermet d'afficher le fichier contenant la liste des fichiers différents.
-    --siteweb\tPermet d'accéder à la page HTML.
-    --helpme\tPermet d'accéder à l'aide.
-    --arb1\tPermet d'afficher toute l'arborescence du dossier 1.
-    --arb2\tPermet d'afficher toute l'arborescence du dossier 2.
-    --non-arbmodif\tPermet de masquer les fichiers modifiers dans l'arborescence.
-    --non-arbnv\tPermet de masquer les nouveau fichiers de l'arborescence.
-    --non-arbinex\tPermet de masquer les fichiers diffétents de l'arborescence.
-    --non-arbid\tPermet de masquer les fichiers identiques dans l'arborescence.
-    --non-arbclr\tPermet de masquer les couleurs dans l'arborescence."
+      echo \
+"Usage: main.bash [options...] <dossier_1> <dossier_2>
+Options:
+    --nbficdiff Affiche le nombre de fichiers différents.
+    --ficdiff   Affiche la liste des fichiers différents.
+    --ficmod    Affiche la liste des fichiers modifiés.
+    --nvfic     Affiche la liste des nouveaux fichiers.
+    --nvficprnt Affiche la liste des nouveaux fichiers ainsi que leur dossier parrent.
+    --ficfdiff  Créé un fichier contenant la liste des fichiers différents.
+    --siteweb   Créé une page HTML; doit être combiné avec arb1 et/ou arb2.
+    --helpme    Permet d'afficher l'aide.
+    --arb1      Permet d'afficher toute l'arborescence du dossier 1.
+    --arb2      Permet d'afficher toute l'arborescence du dossier 2.
+
+Options liées à l'affichage d'un arbre:
+    --non-arbmodif  Masque les fichiers modifiés.
+    --non-arbnv     Masque les nouveaux fichiers.
+    --non-arbinex   Masque les fichiers inexistants.
+    --non-arbid     Masque les fichiers identiques.
+    --non-arbclr    Utilise des symboles au lieu des couleurs.
+
+Explications:
+    Fichiers différents:  fichiers modifiers et nouveaux
+    Fichiers modifiés:    fichiers présent dans les deux répertoires et différent
+    Fichiers nouveaux:    fichiers non présent dans l'autre arborescence
+    Fichiers inexistants: fichiers présent dans l'autre arborescence
+
+Couleurs et symboles:
+    Fichiers modifiers:   orange  ≈
+    Fichiers nouveaux:    vert    +
+    Fichiers inexistants: rouge   -
+
+Exemples:
+    main.bash --arb1 dossier_1 dossier_2
+    main.bash --arb1 --non-arbid --non-arbinex dossier_1 dossier_2
+    main.bash --arb1 --siteweb dossier_1 dossier_2"
       exit
     ;;
     --nbficdiff)
@@ -297,7 +317,7 @@ function print_tree {
       #passe de /home/truc/dossier1/machin/bidule à dossier2/machin/bidule
       new_path="$(echo "$my_path" | sed -e "s|$MAIN_FIRST_DIR/$FIRST_DIR/|$SECOND_DIR/|g" -e "s|$MAIN_SECOND_DIR/$SECOND_DIR/|$FIRST_DIR/|g")"      #ajoute à file_list les fichiers et dossiers qui sont dans l'autre arborescence
       new_path=${new_path::-1}
-      
+
       for file in $new_files_parent; do
         #peut être plus mieux
         if dirname "$file" | grep -q "$new_path$"; then
