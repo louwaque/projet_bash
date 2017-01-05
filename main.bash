@@ -154,6 +154,9 @@ fi
 if [ $MAKE_HTML = true ]; then
   cp "$HTML_FILE_IN" "$HTML_FILE_OUT"
   sed -i "/\/\/style/a $(tr -d '\n' < css_projet_bash.css)" "$HTML_FILE_OUT"
+  if [ -f html_tmp.html ]; then
+    rm html_tmp.html
+  fi
 fi
 
 # met l'empreinte de tous les fichiers dans HASH_FILE
@@ -217,9 +220,9 @@ function print_tree_file {
   if [ $MAKE_HTML = true ]; then
     if [ -d "$my_path" ]; then
       ID="$RANDOM"
-      sed -i "s|\(<!-- arborescence -->\)|<li><input type=\"checkbox\" id=\"$ID\" checked/>\n<i class=\"fa fa-angle-double-right\"></i>\n<i class=\"fa fa-angle-double-down\"></i>\n<label for=\"$ID\"><font color=\"$html_color\">$file_name</font></label>\n\n<ul>\n\1|g" "$HTML_FILE_OUT"
+      echo -e "<li><input type=\"checkbox\" id=\"$ID\" checked/>\n<i class=\"fa fa-angle-double-right\"></i>\n<i class=\"fa fa-angle-double-down\"></i>\n<label for=\"$ID\"><font color=\"$html_color\">$file_name</font></label>\n\n<ul>\n" >> html_tmp.html
     else
-      sed -i "s|\(<!-- arborescence -->\)|<li><a href=\"$my_path\"><font color=\"$html_color\">$file_name</font></a></li>\n\1|g" "$HTML_FILE_OUT"
+      echo -e "<li><a href=\"$my_path\"><font color=\"$html_color\">$file_name</font></a></li>\n" >> html_tmp.html
     fi
   fi
 }
@@ -227,7 +230,7 @@ function print_tree_file {
 #affiche un arbre avec de jolies couleurs
 function print_tree {
   local my_path prefix_file prefix_dir previous_prefixes nb_files \
-        my_i dir_i dir_path file_list file_list_nb_files term_color html_color
+        my_i dir_i dir_path file_list file_list_nb_files term_color html_color use_print_tree_file
   #chemin absolu du dossier ou fichier courant
   my_path="$(realpath "$1")"
   if [ -d "$my_path" ]; then
@@ -258,6 +261,7 @@ function print_tree {
   file_name="$(basename "$my_path")"
   term_color="0"
   html_color=""
+  use_print_tree_file=false
   if [ -e "$my_path" ]; then
     if [[ $SHOW_TREE_MODIF = true || -d "$my_path" && "$modified_files" ]] && echo "$modified_files" | grep -q "^$my_path_without_parent"; then #..parent$ peut être plus sur
       #si c'est un fichier modifié
@@ -267,7 +271,7 @@ function print_tree {
       else
         file_name="$file_name ≈"
       fi
-      print_tree_file
+      use_print_tree_file=true
     else
       if [[ $SHOW_TREE_NEW = true && "$new_files_parent" ]] && echo "$new_files_parent" | grep -q "^$my_path_parent$"; then
         #si c'est un nouveau dossier ou fichier
@@ -277,10 +281,10 @@ function print_tree {
         else
           file_name="$file_name +"
         fi
-        print_tree_file
+        use_print_tree_file=true
       else
         if [ $SHOW_TREE_IDENTICALY = true ]; then
-          print_tree_file
+          use_print_tree_file=true
         fi
       fi
     fi
@@ -294,8 +298,12 @@ function print_tree {
       else
         file_name="$file_name -"
       fi
-      print_tree_file
+      use_print_tree_file=true
     fi
+  fi
+
+  if [ $use_print_tree_file = true ]; then
+    print_tree_file
   fi
 
   if [ -d "$my_path" ]; then
@@ -335,8 +343,8 @@ function print_tree {
     done
   fi
 
-  if [[ $MAKE_HTML = true && "$my_i" -eq "$nb_files" ]]; then
-      sed -i "s|\(<!-- arborescence -->\)|</ul></li>\n\n\1|g" "$HTML_FILE_OUT"
+  if [[ $MAKE_HTML = true && "$my_i" -eq "$nb_files" && $use_print_tree_file = true ]]; then
+      echo -e "</ul></li>\n\n" >> html_tmp.html
   fi
 }
 
@@ -399,6 +407,11 @@ function print_result {
 
   if [ $SHOW_TREE_SECOND = true ]; then
     print_tree "$MAIN_SECOND_DIR/$SECOND_DIR" 1 0 ""
+  fi
+
+  if [ $MAKE_HTML = true ]; then
+    sed -i "s|\(<!-- arborescence -->\)|$(tr -d '\n' < html_tmp.html)|g" "$HTML_FILE_OUT"
+    #rm html_tmp.html
   fi
 }
 
