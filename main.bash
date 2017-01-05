@@ -230,7 +230,8 @@ function print_tree_file {
 #affiche un arbre avec de jolies couleurs
 function print_tree {
   local my_path prefix_file prefix_dir previous_prefixes nb_files \
-        my_i dir_i dir_path file_list file_list_nb_files term_color html_color use_print_tree_file
+        my_i dir_i dir_path file_list file_list_nb_files term_color \
+        html_color use_print_tree_file
   #chemin absolu du dossier ou fichier courant
   my_path="$(realpath "$1")"
   if [ -d "$my_path" ]; then
@@ -263,25 +264,29 @@ function print_tree {
   html_color=""
   use_print_tree_file=false
   if [ -e "$my_path" ]; then
-    if [[ $SHOW_TREE_MODIF = true || -d "$my_path" && "$modified_files" ]] && echo "$modified_files" | grep -q "^$my_path_without_parent"; then #..parent$ peut être plus sur
+    if [ "$modified_files" ] && echo "$modified_files" | grep -q "^$my_path_without_parent"; then #..parent$ peut être plus sur
       #si c'est un fichier modifié
-      if [ $SHOW_TREE_UNCOLORED = false ]; then
-        term_color="33"
-        html_color="#ff9900"
-      else
-        file_name="$file_name ≈"
-      fi
-      use_print_tree_file=true
-    else
-      if [[ $SHOW_TREE_NEW = true && "$new_files_parent" ]] && echo "$new_files_parent" | grep -q "^$my_path_parent$"; then
-        #si c'est un nouveau dossier ou fichier
+      if [[ $SHOW_TREE_MODIF = true || -d "$my_path" ]]; then
         if [ $SHOW_TREE_UNCOLORED = false ]; then
-          term_color="32"
-          html_color="#43d231"
+          term_color="33"
+          html_color="#ff9900"
         else
-          file_name="$file_name +"
+          file_name="$file_name ≈"
         fi
         use_print_tree_file=true
+      fi
+    else
+      if [ "$new_files_parent" ] && echo "$new_files_parent" | grep -q "^$my_path_parent$"; then
+        #si c'est un nouveau dossier ou fichier
+        if [ $SHOW_TREE_NEW = true ]; then
+          if [ $SHOW_TREE_UNCOLORED = false ]; then
+            term_color="32"
+            html_color="#43d231"
+          else
+            file_name="$file_name +"
+          fi
+          use_print_tree_file=true
+        fi
       else
         if [ $SHOW_TREE_IDENTICALY = true ]; then
           use_print_tree_file=true
@@ -307,18 +312,29 @@ function print_tree {
   fi
 
   if [ -d "$my_path" ]; then
-    if [ $SHOW_TREE_IDENTICALY = true ]; then
+    if [[ $SHOW_TREE_IDENTICALY = true && $SHOW_TREE_MODIF = true && $SHOW_TREE_NEW = true ]]; then
       file_list="$(ls "$my_path")"$'\n'
     else
       for file in $(ls "$my_path"); do
-        if [ $SHOW_TREE_MODIF = true ] && echo "$modified_files" | grep -q "$file"; then
-          file_list+="$file"$'\n'
-        fi
-        if [ $SHOW_TREE_NEW = true ] && echo "$new_files_parent" | grep -q "$file"; then
-          file_list+="$file"$'\n'
+        if [ "$modified_files" ] && echo "$modified_files" | grep -q "^$my_path_without_parent$file"; then
+          if [[ $SHOW_TREE_MODIF = true || -d "$my_path/$file" ]]; then
+            file_list+="$file"$'\n'
+          fi
+        else
+          if [ -d "$my_path/$file" ]; then
+            file="$file/"
+          fi
+          if [ "$new_files_parent" ] && echo "$new_files_parent" | grep -q "^$my_path_parent$file$"; then
+            if [ $SHOW_TREE_NEW = true ]; then
+              file_list+="$file"$'\n'
+            fi
+          else
+            if [ $SHOW_TREE_IDENTICALY = true ]; then
+              file_list+="$file"$'\n'
+            fi
+          fi
         fi
       done
-      file_list="$(echo "$file_list" | uniq)"
     fi
 
     if [ $SHOW_TREE_NONEXISTENT = true ]; then
@@ -341,10 +357,10 @@ function print_tree {
       print_tree "$my_path/$dir_path" "$dir_i" "$file_list_nb_files" "$previous_prefixes$prefix_dir"
       dir_i=$((dir_i+1))
     done
-  fi
 
-  if [[ $MAKE_HTML = true && "$my_i" -eq "$nb_files" && $use_print_tree_file = true ]]; then
+    if [ $MAKE_HTML = true ]; then
       echo -e "</ul></li>\n\n" >> html_tmp.html
+    fi
   fi
 }
 
@@ -411,7 +427,7 @@ function print_result {
 
   if [ $MAKE_HTML = true ]; then
     sed -i "s|\(<!-- arborescence -->\)|$(tr -d '\n' < html_tmp.html)|g" "$HTML_FILE_OUT"
-    #rm html_tmp.html
+    rm html_tmp.html
   fi
 }
 
