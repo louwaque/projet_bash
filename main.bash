@@ -379,11 +379,11 @@ function print_result {
     if [ -f "fichiers_diff" ]; then
       rm "fichiers_diff"
     fi
-    for path in $modified_files; do
+    for path in $(echo "$modified_files" | grep -v ".*/$"); do
       realpath "$MAIN_FIRST_DIR/$FIRST_DIR/$path" >> fichiers_diff
       realpath "$MAIN_SECOND_DIR/$SECOND_DIR/$path" >> fichiers_diff
     done
-    for path in $new_files_parent; do
+    for path in $(echo "$new_files_parent" | grep -v ".*/$"); do
       if echo "$path" | grep -q "^/$FIRST_DIR"; then
         realpath "$MAIN_FIRST_DIR/$path" >> fichiers_diff
       fi
