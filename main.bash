@@ -356,22 +356,23 @@ function print_result {
 
   if [ $SHOW_DIFFERENT_FILES = true ]; then
     echo "fichiers différents:"
-    echo "$different_files"
+    echo "$modified_files" | grep -v ".*/$"
+    echo "$new_files" | grep -v ".*/$"
   fi
 
   if [ $SHOW_MODIFIED_FILES = true ]; then
     echo "fichiers modifiés:"
-    echo "$modified_files"
+    echo "$modified_files" | grep -v ".*/$"
   fi
 
   if [ $SHOW_NEW_FILES = true ]; then
     echo "nouveaux fichiers:"
-    echo "$new_files"
+    echo "$new_files" | grep -v ".*/$"
   fi
 
   if [ $SHOW_NEW_PARENT_FILES = true ]; then
-    echo "nouveaux fichiers avec parent:"
-    echo "$new_files_parent"
+    echo "nouveaux fichiers avec leurs parents:"
+    echo "$new_files_parent" | grep -v ".*/$"
   fi
 
   if [ $MAKE_DIFF_FILE = true ]; then
