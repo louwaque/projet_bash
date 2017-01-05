@@ -348,7 +348,7 @@ function print_result {
   nb_different_files=$(($(echo "$modified_files" | grep -cv ".*/$")+$(echo "$new_files" | grep -cv ".*/$")))
   if [ $SHOW_NB_DIFFERENT_FILES = true ]; then
     #la somme des fichiers (pas des dossiers) modifiés et nouveaux
-    echo "$nb_different_files fichers diff"
+    echo "$nb_different_files fichers différents"
   fi
   if [ $MAKE_HTML = true ]; then
     sed -i "s|<!-- nb_fichiers -->|$nb_different_files|g" "$HTML_FILE_OUT"
