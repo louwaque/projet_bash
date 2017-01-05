@@ -355,22 +355,22 @@ function print_result {
   fi
 
   if [ $SHOW_DIFFERENT_FILES = true ]; then
-    echo "different_files:"
+    echo "fichiers différents:"
     echo "$different_files"
   fi
 
   if [ $SHOW_MODIFIED_FILES = true ]; then
-    echo "modified_files:"
+    echo "fichiers modifiés:"
     echo "$modified_files"
   fi
 
   if [ $SHOW_NEW_FILES = true ]; then
-    echo "new_files:"
+    echo "nouveaux fichiers:"
     echo "$new_files"
   fi
 
   if [ $SHOW_NEW_PARENT_FILES = true ]; then
-    echo "new_files_parent:"
+    echo "nouveaux fichiers avec parent:"
     echo "$new_files_parent"
   fi
 
