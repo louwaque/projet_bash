@@ -213,7 +213,7 @@ function print_tree_file {
   if [ "$previous_prefixes" ]; then
     echo -e "$previous_prefixes$prefix_file\e[${term_color}m$file_name\e[0m"
   else
-    echo -e "$file_name"
+    echo -e "\e[${term_color}m$file_name\e[0m"
     prefix_dir="\0"
   fi
 
@@ -264,32 +264,40 @@ function print_tree {
   html_color=""
   use_print_tree_file=false
   if [ -e "$my_path" ]; then
-    if [ "$modified_files" ] && echo "$modified_files" | grep -q "^$my_path_without_parent"; then #..parent$ peut être plus sur
-      #si c'est un fichier modifié
-      if [[ $SHOW_TREE_MODIF = true || -d "$my_path" ]]; then
+    if [ "$new_files_parent" ] && echo "$new_files_parent" | grep -q "^$my_path_parent$"; then
+      #si c'est un nouveau dossier ou fichier
+      if [ $SHOW_TREE_NEW = true ]; then
         if [ $SHOW_TREE_UNCOLORED = false ]; then
-          term_color="33"
-          html_color="#ff9900"
+          term_color="32"
+          html_color="#43d231"
         else
-          file_name="$file_name ≈"
+          file_name="$file_name +"
         fi
         use_print_tree_file=true
       fi
     else
-      if [ "$new_files_parent" ] && echo "$new_files_parent" | grep -q "^$my_path_parent$"; then
-        #si c'est un nouveau dossier ou fichier
-        if [ $SHOW_TREE_NEW = true ]; then
-          if [ $SHOW_TREE_UNCOLORED = false ]; then
-            term_color="32"
-            html_color="#43d231"
-          else
-            file_name="$file_name +"
-          fi
-          use_print_tree_file=true
-        fi
+      if [ $SHOW_TREE_UNCOLORED = false ]; then
+        term_color="33"
+        html_color="#ff9900"
       else
-        if [ $SHOW_TREE_IDENTICALY = true ]; then
-          use_print_tree_file=true
+        file_name="$file_name ≈"
+      fi
+
+      if [[ -d "$my_path" && "$new_files_parent" ]] && echo "$new_files_parent" | grep -q "^$my_path_parent"; then
+        use_print_tree_file=true
+      else
+        if [ "$modified_files" ] && echo "$modified_files" | grep -q "^$my_path_without_parent"; then
+          #si c'est un fichier modifié
+          if [[ $SHOW_TREE_MODIF = true || -d "$my_path" ]]; then
+            use_print_tree_file=true
+          fi
+        else
+          term_color="0"
+          html_color=""
+
+          if [ $SHOW_TREE_IDENTICALY = true ]; then
+            use_print_tree_file=true
+          fi
         fi
       fi
     fi
@@ -316,21 +324,26 @@ function print_tree {
       file_list="$(ls "$my_path")"$'\n'
     else
       for file in $(ls "$my_path"); do
-        if [ "$modified_files" ] && echo "$modified_files" | grep -q "^$my_path_without_parent$file"; then
-          if [[ $SHOW_TREE_MODIF = true || -d "$my_path/$file" ]]; then
+        if [ -d "$my_path/$file" ]; then
+          file="$file/"
+        fi
+
+        if [ "$new_files_parent" ] && echo "$new_files_parent" | grep -q "^$my_path_parent$file$"; then
+          if [ $SHOW_TREE_NEW = true ]; then
             file_list+="$file"$'\n'
           fi
         else
-          if [ -d "$my_path/$file" ]; then
-            file="$file/"
-          fi
-          if [ "$new_files_parent" ] && echo "$new_files_parent" | grep -q "^$my_path_parent$file$"; then
-            if [ $SHOW_TREE_NEW = true ]; then
-              file_list+="$file"$'\n'
-            fi
+          if [[ -d "$my_path$file" && "$new_files_parent" ]] && echo "$new_files_parent" | grep -q "^$my_path_parent$file"; then
+            file_list+="$file"$'\n'
           else
-            if [ $SHOW_TREE_IDENTICALY = true ]; then
-              file_list+="$file"$'\n'
+            if [ "$modified_files" ] && echo "$modified_files" | grep -q "^$my_path_without_parent$file"; then
+              if [[ $SHOW_TREE_MODIF = true || -d "$my_path$file" ]]; then
+                file_list+="$file"$'\n'
+              fi
+            else
+              if [ $SHOW_TREE_IDENTICALY = true ]; then
+                file_list+="$file"$'\n'
+              fi
             fi
           fi
         fi
